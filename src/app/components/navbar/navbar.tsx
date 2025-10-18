@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const Toolbar = () => {
   return (
-    <div className="fixed top-0 left-0 right-0 h-10 bg-[#323233] border-b border-[#464647] flex items-center text-white text-xs z-50">
+    <div className="fixed top-0 left-0 right-0 h-10 bg-[#161616] border-b border-[#464647] flex items-center text-white text-xs z-50">
       {/* Left Section - Logo and Menu */}
       <div className="flex items-center h-full">
         {/* Logo */}

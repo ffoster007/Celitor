@@ -10,7 +10,7 @@ const Toolbar = () => {
         {/* Logo */}
         <div className="flex items-center px-3 h-full ">
           <Image
-            src="/assets/Calitors.png"
+            src="/assets/dist.png"
             alt="Calitor Logo"
             width={20}
             height={20}

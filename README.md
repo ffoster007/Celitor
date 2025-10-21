@@ -1,5 +1,10 @@
-## Getting Started
+<p align="center">
+  <a href="#" target="_blank" rel="noopener">
+    <img src="./public/github_readme/Calcus.png" alt="Calcus Logo" />
+  </a>
+</p>
 
+## Getting Started
 First, run the development server:
 
 ```

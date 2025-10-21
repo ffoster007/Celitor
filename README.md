@@ -1,6 +1,6 @@
 <p align="center">
   <a href="#" target="_blank" rel="noopener">
-    <img src="./public/github_readme/Calcus.png" alt="Calcus Logo" />
+    <img src="./public/assets/Banner.png" alt="Calcus Logo" />
   </a>
 </p>
 

@@ -1,24 +1,24 @@
 "use client";
 
 import React, { useState } from 'react';
-import { GitBranch, Zap, Book, Code } from 'lucide-react';
+import { Zap, Book, Code } from 'lucide-react';
 
 export default function GitBranchLanding() {
   const [activeSection, setActiveSection] = useState('hero');
 
   return (
-    <div className="min-h-screen bg-black text-yellow-400 font-mono overflow-hidden">
+    <div className="min-h-screen bg-black text-white font-mono overflow-hidden">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-black border-b-2 border-yellow-400 z-50 px-6 py-4">
+      <nav className="fixed top-0 w-full bg-black border-b-2 border-white z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <GitBranch className="w-6 h-6" />
+            <img src="/assets/Calitors.png" alt="Celitor logo" className="w-8 h-8" />
             <span className="text-xl font-bold tracking-wider">CELITOR</span>
           </div>
           <div className="flex items-center gap-8">
-            <a href="#features" className="hover:text-yellow-300 transition-colors uppercase text-sm tracking-wide">Features</a>
-            <a href="#pricing" className="hover:text-yellow-300 transition-colors uppercase text-sm tracking-wide">Pricing</a>
-            <button className="bg-yellow-400 text-black px-6 py-2 font-bold hover:bg-yellow-300 transition-colors uppercase tracking-wide cursor-pointer">
+            <a href="#features" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Features</a>
+            <a href="#pricing" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Pricing</a>
+            <button className="bg-white text-black px-6 py-2 font-bold hover:bg-gray-200 transition-colors uppercase tracking-wide cursor-pointer">
               Get Started
             </button>
           </div>
@@ -30,16 +30,16 @@ export default function GitBranchLanding() {
         {/* Animated Background Grid */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(rgba(250, 204, 21, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(250, 204, 21, 0.1) 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
             backgroundSize: '50px 50px'
           }}></div>
         </div>
 
         {/* Globe Effect */}
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[800px] h-[400px] opacity-30">
-          <div className="absolute inset-0 rounded-t-full border-4 border-yellow-400/30 overflow-hidden">
+          <div className="absolute inset-0 rounded-t-full border-4 border-white/30 overflow-hidden">
             <div className="absolute inset-0" style={{
-              backgroundImage: 'radial-gradient(circle at 50% 100%, rgba(250, 204, 21, 0.2) 0%, transparent 70%)'
+              backgroundImage: 'radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.2) 0%, transparent 70%)'
             }}></div>
           </div>
         </div>
@@ -49,14 +49,14 @@ export default function GitBranchLanding() {
             NO CONFLICTS,<br />
             ONLY CLEAN MERGES
           </h1>
-          <p className="text-lg md:text-xl text-yellow-400/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
             WE EMPOWER YOU TO MANAGE BRANCHES THAT STREAMLINE YOUR WORKFLOW AND ELIMINATE MERGE CHAOS.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="bg-yellow-400 text-black px-8 py-3 font-bold hover:bg-yellow-300 transition-all uppercase tracking-wide">
+            <button className="bg-white text-black px-8 py-3 font-bold hover:bg-gray-200 transition-all uppercase tracking-wide">
               Boost Velocity
             </button>
-            <button className="border-2 border-yellow-400 text-yellow-400 px-8 py-3 font-bold hover:bg-yellow-400 hover:text-black transition-all uppercase tracking-wide">
+            <button className="border-2 border-white text-white px-8 py-3 font-bold hover:bg-white hover:text-black transition-all uppercase tracking-wide">
               Learn GitFlow
             </button>
           </div>
@@ -64,33 +64,33 @@ export default function GitBranchLanding() {
 
         {/* Features Grid */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
-          <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
+          <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Book className="w-10 h-10 mb-4" />
             <h3 className="text-xl font-bold mb-2 uppercase">Branch Strategy</h3>
-            <p className="text-yellow-400/70 text-sm">
+            <p className="text-white/70 text-sm">
               PROTECT YOUR MAIN BRANCH WITH AUTOMATED POLICIES AND CONTROLLED WORKFLOWS.
             </p>
           </div>
           
-          <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
+          <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Code className="w-10 h-10 mb-4" />
             <h3 className="text-xl font-bold mb-2 uppercase">Merge Analysis</h3>
-            <p className="text-yellow-400/70 text-sm">
+            <p className="text-white/70 text-sm">
               AI-POWERED CONFLICT DETECTION TO IDENTIFY AND RESOLVE ISSUES BEFORE THEY HAPPEN.
             </p>
           </div>
           
-          <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
+          <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Zap className="w-10 h-10 mb-4" />
             <h3 className="text-xl font-bold mb-2 uppercase">Release Pipeline</h3>
-            <p className="text-yellow-400/70 text-sm">
+            <p className="text-white/70 text-sm">
               AUTOMATED RELEASE WORKFLOWS THAT ENSURE STABLE AND PREDICTABLE DEPLOYMENTS.
             </p>
           </div>
         </div>
 
         {/* Value Proposition */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center border-t-2 border-yellow-400 pt-12">
+        <div className="relative z-10 max-w-4xl mx-auto text-center border-t-2 border-white pt-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
             WE PROVIDE INTELLIGENT<br />
             BRANCH MANAGEMENT TO ACCELERATE<br />

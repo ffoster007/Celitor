@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { GitBranch, Zap, Shield, Code } from 'lucide-react';
+import { GitBranch, Zap, Book, Code } from 'lucide-react';
 
 export default function GitBranchLanding() {
   const [activeSection, setActiveSection] = useState('hero');
@@ -65,7 +65,7 @@ export default function GitBranchLanding() {
         {/* Features Grid */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
           <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
-            <Shield className="w-10 h-10 mb-4" />
+            <Book className="w-10 h-10 mb-4" />
             <h3 className="text-xl font-bold mb-2 uppercase">Branch Strategy</h3>
             <p className="text-yellow-400/70 text-sm">
               PROTECT YOUR MAIN BRANCH WITH AUTOMATED POLICIES AND CONTROLLED WORKFLOWS.
@@ -96,15 +96,7 @@ export default function GitBranchLanding() {
             BRANCH MANAGEMENT TO ACCELERATE<br />
             YOUR DEVELOPMENT VELOCITY.
           </h2>
-          
-          <div className="flex flex-wrap justify-center gap-4 text-xs uppercase tracking-wider">
-            <span className="border border-yellow-400 px-3 py-1">✓ Smart</span>
-            <span className="border border-yellow-400 px-3 py-1">✓ Fast</span>
-            <span className="border border-yellow-400 px-3 py-1">✓ Reliable</span>
-            <span className="border border-yellow-400 px-3 py-1">✓ Automated</span>
-            <span className="border border-yellow-400 px-3 py-1">✓ Scalable</span>
-            <span className="border border-yellow-400 px-3 py-1">✓ Secure</span>
-          </div>
+        
         </div>
       </div>
     </div>

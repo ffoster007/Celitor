@@ -1,65 +1,112 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState } from 'react';
+import { GitBranch, Zap, Shield, Code } from 'lucide-react';
+
+export default function GitBranchLanding() {
+  const [activeSection, setActiveSection] = useState('hero');
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-black text-yellow-400 font-mono overflow-hidden">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full bg-black border-b-2 border-yellow-400 z-50 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GitBranch className="w-6 h-6" />
+            <span className="text-xl font-bold tracking-wider">CELITOR</span>
+          </div>
+          <div className="flex items-center gap-8">
+            <a href="#features" className="hover:text-yellow-300 transition-colors uppercase text-sm tracking-wide">Features</a>
+            <a href="#pricing" className="hover:text-yellow-300 transition-colors uppercase text-sm tracking-wide">Pricing</a>
+            <button className="bg-yellow-400 text-black px-6 py-2 font-bold hover:bg-yellow-300 transition-colors uppercase tracking-wide cursor-pointer">
+              Get Started
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="relative min-h-screen flex flex-col justify-center items-center px-6 pt-20">
+        {/* Animated Background Grid */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(rgba(250, 204, 21, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(250, 204, 21, 0.1) 1px, transparent 1px)',
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+
+        {/* Globe Effect */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[800px] h-[400px] opacity-30">
+          <div className="absolute inset-0 rounded-t-full border-4 border-yellow-400/30 overflow-hidden">
+            <div className="absolute inset-0" style={{
+              backgroundImage: 'radial-gradient(circle at 50% 100%, rgba(250, 204, 21, 0.2) 0%, transparent 70%)'
+            }}></div>
+          </div>
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto text-center mb-20">
+          <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
+            NO CONFLICTS,<br />
+            ONLY CLEAN MERGES
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg md:text-xl text-yellow-400/80 mb-8 max-w-2xl mx-auto">
+            WE EMPOWER YOU TO MANAGE BRANCHES THAT STREAMLINE YOUR WORKFLOW AND ELIMINATE MERGE CHAOS.
           </p>
+          <div className="flex gap-4 justify-center">
+            <button className="bg-yellow-400 text-black px-8 py-3 font-bold hover:bg-yellow-300 transition-all uppercase tracking-wide">
+              Boost Velocity
+            </button>
+            <button className="border-2 border-yellow-400 text-yellow-400 px-8 py-3 font-bold hover:bg-yellow-400 hover:text-black transition-all uppercase tracking-wide">
+              Learn GitFlow
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Features Grid */}
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
+          <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
+            <Shield className="w-10 h-10 mb-4" />
+            <h3 className="text-xl font-bold mb-2 uppercase">Branch Strategy</h3>
+            <p className="text-yellow-400/70 text-sm">
+              PROTECT YOUR MAIN BRANCH WITH AUTOMATED POLICIES AND CONTROLLED WORKFLOWS.
+            </p>
+          </div>
+          
+          <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
+            <Code className="w-10 h-10 mb-4" />
+            <h3 className="text-xl font-bold mb-2 uppercase">Merge Analysis</h3>
+            <p className="text-yellow-400/70 text-sm">
+              AI-POWERED CONFLICT DETECTION TO IDENTIFY AND RESOLVE ISSUES BEFORE THEY HAPPEN.
+            </p>
+          </div>
+          
+          <div className="border-2 border-yellow-400 bg-black/50 p-6 backdrop-blur-sm hover:bg-yellow-400/10 transition-all">
+            <Zap className="w-10 h-10 mb-4" />
+            <h3 className="text-xl font-bold mb-2 uppercase">Release Pipeline</h3>
+            <p className="text-yellow-400/70 text-sm">
+              AUTOMATED RELEASE WORKFLOWS THAT ENSURE STABLE AND PREDICTABLE DEPLOYMENTS.
+            </p>
+          </div>
         </div>
-      </main>
+
+        {/* Value Proposition */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center border-t-2 border-yellow-400 pt-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
+            WE PROVIDE INTELLIGENT<br />
+            BRANCH MANAGEMENT TO ACCELERATE<br />
+            YOUR DEVELOPMENT VELOCITY.
+          </h2>
+          
+          <div className="flex flex-wrap justify-center gap-4 text-xs uppercase tracking-wider">
+            <span className="border border-yellow-400 px-3 py-1">✓ Smart</span>
+            <span className="border border-yellow-400 px-3 py-1">✓ Fast</span>
+            <span className="border border-yellow-400 px-3 py-1">✓ Reliable</span>
+            <span className="border border-yellow-400 px-3 py-1">✓ Automated</span>
+            <span className="border border-yellow-400 px-3 py-1">✓ Scalable</span>
+            <span className="border border-yellow-400 px-3 py-1">✓ Secure</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

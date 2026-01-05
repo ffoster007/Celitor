@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Zap, Book, Code } from 'lucide-react';
+import Link from 'next/link';
 
 export default function GitBranchLanding() {
   const [activeSection, setActiveSection] = useState('hero');
@@ -18,9 +19,9 @@ export default function GitBranchLanding() {
           <div className="flex items-center gap-8">
             <a href="#features" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Features</a>
             <a href="#pricing" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Pricing</a>
-            <button className="bg-white text-black px-6 py-2 font-bold hover:bg-gray-200 transition-colors uppercase tracking-wide cursor-pointer">
+            <Link href="/open/oauth" className="bg-white text-black px-6 py-2 font-bold hover:bg-gray-200 transition-colors uppercase tracking-wide cursor-pointer">
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       </nav>

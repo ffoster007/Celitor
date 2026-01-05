@@ -1,15 +1,23 @@
 "use client";
 
 import AvatarMenu from "./avatar";
+import Image from "next/image";
 
 const Toolbar = () => {
 
 	return (
-		<header className="relative z-20 w-full border-b border-slate-800 bg-[#0f1720]">
-			<div className="flex items-center justify-between px-5 py-3">
+		<header className="sticky top-0 z-20 w-full border-b border-slate-800 bg-slate-950">
+			<div className="flex h-12 items-center justify-between px-3">
 				<div className="flex items-center space-x-3">
-					<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 ring-1 ring-slate-800">
-						<span className="text-sm font-semibold text-emerald-200">CE</span>
+					<div className="flex h-8 w-8 items-center justify-center">
+						<Image
+							src="/assets/dist.png"
+							alt="Celitor"
+							width={20}
+							height={20}
+							className="h-6 w-6 object-contain"
+							priority
+						/>
 					</div>
 					<div>
 						<div className="flex items-center space-x-2 text-[11px] uppercase tracking-[0.08em] text-slate-400">

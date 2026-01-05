@@ -21,22 +21,27 @@ const ActivityBar = () => {
 	const [active, setActive] = useState<string>("explorer");
 
 	return (
-		<aside className="flex w-16 flex-col justify-between border-r border-slate-800 bg-[#0f1720] px-2 py-4">
-			<div className="flex flex-col space-y-3">
+		<aside className="flex w-12 flex-col justify-between border-r border-slate-800 bg-slate-950 py-2">
+			<div className="flex flex-col">
 				{navItems.map(({ id, icon: Icon, tooltip }) => {
 					const isActive = active === id;
 					return (
 						<button
 							key={id}
 							onClick={() => setActive(id)}
-							className={`relative flex items-center justify-center rounded-lg p-3 text-slate-400 transition hover:bg-slate-900 focus:outline-none ${
-								isActive ? "text-emerald-200" : ""
+							className={`group relative flex h-12 w-12 items-center justify-center text-slate-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 ${
+								isActive
+									? "bg-slate-900/50 text-slate-100"
+									: "hover:bg-slate-900/40 hover:text-slate-200"
 							}`}
 							title={tooltip}
 						>
 							<Icon className="h-5 w-5" />
 							{isActive && (
-								<span className="absolute right-[-6px] h-8 w-0.5 rounded-full bg-emerald-300" aria-hidden />
+								<span
+									className="absolute left-0 h-6 w-0.5 rounded-full bg-slate-100"
+									aria-hidden
+								/>
 							)}
 						</button>
 					);

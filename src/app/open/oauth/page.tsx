@@ -56,7 +56,7 @@ export default function GitHubOAuth() {
             className="w-full bg-white text-black py-4 px-6 font-bold hover:bg-gray-200 transition-all uppercase tracking-wide flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-            <Github className="w-6 h-6 relative z-10" />
+            <Github className="w-6 h-6 relative z-10 cursor-pointer" />
             <span className="relative z-10 cursor-pointer">
               {isLoading ? 'AUTHENTICATING...' : 'SIGN IN WITH GITHUB'}
             </span>

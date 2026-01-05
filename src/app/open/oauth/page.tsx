@@ -2,18 +2,19 @@
 
 import React, { useState } from 'react';
 import { GitBranch, Github, Lock, Zap } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 
 export default function GitHubOAuth() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGitHubLogin = () => {
+  const handleGitHubLogin = async () => {
     setIsLoading(true);
-    // Simulate OAuth flow
-    setTimeout(() => {
-      console.log('Redirecting to GitHub OAuth...');
-      // window.location.href = 'https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID';
+    try {
+      await signIn('github', { callbackUrl: '/content' });
+    } catch (error) {
+      console.error('OAuth error:', error);
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

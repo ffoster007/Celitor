@@ -2,19 +2,13 @@
 
 import { useState } from "react";
 import {
-	Blocks,
-	Bot,
-	Database,
-	GitBranch,
-	Settings,
+	Files,
+	Album,
 } from "lucide-react";
 
 const navItems = [
-	{ id: "explorer", icon: Blocks, tooltip: "Explorer" },
-	{ id: "data", icon: Database, tooltip: "Schemas" },
-	{ id: "ai", icon: Bot, tooltip: "Copilot" },
-	{ id: "git", icon: GitBranch, tooltip: "Source Control" },
-	{ id: "settings", icon: Settings, tooltip: "Settings" },
+	{ id: "explorer", icon: Files, tooltip: "Explorer" },
+	{ id: "album", icon: Album, tooltip: "Album" },
 ];
 
 const ActivityBar = () => {
@@ -29,7 +23,7 @@ const ActivityBar = () => {
 						<button
 							key={id}
 							onClick={() => setActive(id)}
-							className={`group relative flex h-12 w-12 items-center justify-center text-slate-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 ${
+							className={`group relative flex h-12 w-12 items-center justify-center text-slate-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 cursor-pointer ${
 								isActive
 									? "bg-slate-900/50 text-slate-100"
 									: "hover:bg-slate-900/40 hover:text-slate-200"

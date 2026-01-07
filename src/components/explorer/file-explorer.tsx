@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   ChevronRight,
   ChevronDown,
@@ -145,28 +145,42 @@ const FileExplorer = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load root contents on mount
-  useState(() => {
+  // Load root contents whenever repo changes
+  useEffect(() => {
+    let cancelled = false;
+
     const loadContents = async () => {
       try {
+        setError(null);
+        setContents([]);
         setLoading(true);
+
         const response = await fetch(
-          `/api/github/contents?owner=${owner}&repo=${repo}`
+          `/api/github/contents?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`
         );
         if (!response.ok) {
           throw new Error("Failed to load repository contents");
         }
         const data = await response.json();
-        setContents(data);
+        if (!cancelled) {
+          setContents(data);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "An error occurred");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadContents();
-  });
+    return () => {
+      cancelled = true;
+    };
+  }, [owner, repo]);
 
   return (
     <div className="flex h-full flex-col bg-slate-900">

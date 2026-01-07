@@ -64,6 +64,7 @@ const ContentPage = () => {
                 {explorerVisible && selectedRepo && (
                     <div className="w-64 border-r border-slate-800">
                         <FileExplorer
+                            key={selectedRepo.full_name}
                             owner={selectedRepo.owner.login}
                             repo={selectedRepo.name}
                             repoFullName={selectedRepo.full_name}

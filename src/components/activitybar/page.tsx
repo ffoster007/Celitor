@@ -6,23 +6,41 @@ import {
 	Album,
 } from "lucide-react";
 
+interface ActivityBarProps {
+	onExplorerToggle?: (isActive: boolean) => void;
+	explorerActive?: boolean;
+}
+
 const navItems = [
 	{ id: "explorer", icon: Files, tooltip: "Explorer" },
 	{ id: "album", icon: Album, tooltip: "Album" },
 ];
 
-const ActivityBar = () => {
-	const [active, setActive] = useState<string>("explorer");
+const ActivityBar = ({ onExplorerToggle, explorerActive = false }: ActivityBarProps) => {
+	const [active, setActive] = useState<string | null>(() => explorerActive ? "explorer" : null);
+
+	// Sync with parent's explorerActive prop
+	const currentActive = explorerActive ? "explorer" : (active === "explorer" ? null : active);
+
+	const handleClick = (id: string) => {
+		if (id === "explorer") {
+			const newState = currentActive === "explorer" ? null : "explorer";
+			setActive(newState);
+			onExplorerToggle?.(newState === "explorer");
+		} else {
+			setActive(id);
+		}
+	};
 
 	return (
 		<aside className="flex w-12 flex-col justify-between border-r border-slate-800 bg-slate-950 py-2">
 			<div className="flex flex-col">
 				{navItems.map(({ id, icon: Icon, tooltip }) => {
-					const isActive = active === id;
+					const isActive = (id === "explorer" ? currentActive : active) === id;
 					return (
 						<button
 							key={id}
-							onClick={() => setActive(id)}
+							onClick={() => handleClick(id)}
 							className={`group relative flex h-12 w-12 items-center justify-center text-slate-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 cursor-pointer ${
 								isActive
 									? "bg-slate-900/50 text-slate-100"

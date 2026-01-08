@@ -1,49 +1,78 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import ActivityBar from "@/components/activitybar/page";
 import InfinityCanvas from "@/components/interface/infinitycanvas";
 import Toolbar from "@/components/toolbar/page";
 import { FileExplorer, RepoSelector } from "@/components/explorer";
 import type { GitHubRepo } from "@/lib/github";
 
-// Helper function to get initial repo from localStorage
-const getInitialRepo = (): GitHubRepo | null => {
-    if (typeof window === "undefined") return null;
-    const savedRepo = localStorage.getItem("celitor_selected_repo");
-    if (savedRepo) {
-        try {
-            return JSON.parse(savedRepo);
-        } catch {
-            return null;
-        }
-    }
+const SELECTED_REPO_STORAGE_KEY = "celitor_selected_repo";
+const SELECTED_REPO_CHANGED_EVENT = "celitor:selected_repo_changed";
+
+const subscribeToSelectedRepo = (onStoreChange: () => void) => {
+    const onStorage = (event: StorageEvent) => {
+        if (event.key === SELECTED_REPO_STORAGE_KEY) onStoreChange();
+    };
+    const onCustom = () => onStoreChange();
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(SELECTED_REPO_CHANGED_EVENT, onCustom);
+
+    return () => {
+        window.removeEventListener("storage", onStorage);
+        window.removeEventListener(SELECTED_REPO_CHANGED_EVENT, onCustom);
+    };
+};
+
+const getSelectedRepoSnapshot = () => {
+    return localStorage.getItem(SELECTED_REPO_STORAGE_KEY);
+};
+
+const getSelectedRepoServerSnapshot = () => {
     return null;
 };
 
 const ContentPage = () => {
-    const [selectedRepo, setSelectedRepo] = useState<GitHubRepo | null>(() => getInitialRepo());
-    const [showRepoSelector, setShowRepoSelector] = useState(() => !getInitialRepo());
-    const [explorerVisible, setExplorerVisible] = useState(() => !!getInitialRepo());
+    const selectedRepoJson = useSyncExternalStore(
+        subscribeToSelectedRepo,
+        getSelectedRepoSnapshot,
+        getSelectedRepoServerSnapshot
+    );
+
+    const selectedRepo = useMemo<GitHubRepo | null>(() => {
+        if (!selectedRepoJson) return null;
+        try {
+            return JSON.parse(selectedRepoJson) as GitHubRepo;
+        } catch {
+            return null;
+        }
+    }, [selectedRepoJson]);
+
+    const [repoSelectorOpen, setRepoSelectorOpen] = useState(false);
+    const [explorerOverride, setExplorerOverride] = useState<boolean | null>(null);
+
+    const explorerVisible = selectedRepo ? (explorerOverride ?? true) : false;
+    const showRepoSelector = repoSelectorOpen || !selectedRepo;
 
     const handleSelectRepo = (repo: GitHubRepo) => {
-        setSelectedRepo(repo);
-        setShowRepoSelector(false);
-        setExplorerVisible(true);
+        setRepoSelectorOpen(false);
+        setExplorerOverride(true);
         // Save to localStorage
-        localStorage.setItem("celitor_selected_repo", JSON.stringify(repo));
+        localStorage.setItem(SELECTED_REPO_STORAGE_KEY, JSON.stringify(repo));
+        window.dispatchEvent(new Event(SELECTED_REPO_CHANGED_EVENT));
     };
 
     const handleExplorerToggle = (isActive: boolean) => {
         if (isActive && !selectedRepo) {
-            setShowRepoSelector(true);
+            setRepoSelectorOpen(true);
         } else {
-            setExplorerVisible(isActive);
+            setExplorerOverride(isActive);
         }
     };
 
     const handleChangeRepo = () => {
-        setShowRepoSelector(true);
+        setRepoSelectorOpen(true);
     };
 
     const handleFileSelect = (path: string) => {
@@ -85,7 +114,7 @@ const ContentPage = () => {
                     onSelectRepo={handleSelectRepo}
                     onClose={() => {
                         if (selectedRepo) {
-                            setShowRepoSelector(false);
+                            setRepoSelectorOpen(false);
                         }
                     }}
                 />

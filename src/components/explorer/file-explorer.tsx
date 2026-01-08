@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   File,
   Folder,
   FolderOpen,
@@ -144,6 +145,9 @@ const FileExplorer = ({
   const [contents, setContents] = useState<GitHubContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
 
   // Load root contents whenever repo changes
   useEffect(() => {
@@ -182,8 +186,34 @@ const FileExplorer = ({
     };
   }, [owner, repo]);
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const maxScrollTop = scrollHeight - clientHeight;
+      const overflow = maxScrollTop > 1;
+      setCanScrollUp(overflow && scrollTop > 1);
+      setCanScrollDown(overflow && scrollTop < maxScrollTop - 1);
+    };
+
+    update();
+
+    const onScroll = () => update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
+  }, [contents, loading, error]);
+
   return (
-    <div className="flex h-full flex-col bg-slate-900">
+    <div className="flex h-full min-h-0 flex-col bg-slate-900">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-700 px-3 py-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -203,7 +233,8 @@ const FileExplorer = ({
       </button>
 
       {/* File tree */}
-      <div className="flex-1 overflow-y-auto py-1">
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto py-1">
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
@@ -227,6 +258,19 @@ const FileExplorer = ({
               onFileSelect={onFileSelect}
             />
           ))
+        )}
+        </div>
+
+        {/* Scroll indicators */}
+        {canScrollUp && (
+          <div className="pointer-events-none absolute top-0 left-0 right-0 flex items-start justify-center bg-gradient-to-b from-slate-900 to-transparent pt-1">
+            <ChevronUp className="h-4 w-4 text-slate-500" />
+          </div>
+        )}
+        {canScrollDown && (
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center bg-gradient-to-t from-slate-900 to-transparent pb-1">
+            <ChevronDown className="h-4 w-4 text-slate-500" />
+          </div>
         )}
       </div>
     </div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import ActivityBar from "@/components/activitybar/page";
 import InfinityCanvas from "@/components/interface/infinitycanvas";
 import Toolbar from "@/components/toolbar/page";
-import { FileExplorer, RepoSelector } from "@/components/explorer";
+import { FileExplorer, FileViewer, RepoSelector } from "@/components/explorer";
 import type { GitHubRepo } from "@/lib/github";
 
 const SELECTED_REPO_STORAGE_KEY = "celitor_selected_repo";
@@ -81,6 +81,9 @@ const ContentPage = () => {
 
     const [repoSelectorOpen, setRepoSelectorOpen] = useState(false);
     const [explorerOverride, setExplorerOverride] = useState<boolean | null>(null);
+    const [activeFilePath, setActiveFilePath] = useState<string | null>(null);
+    const [panelWidth, setPanelWidth] = useState(256);
+    const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
     const explorerVisible = selectedRepo ? (explorerOverride ?? true) : false;
     const showRepoSelector = hydrated && (repoSelectorOpen || !selectedRepo);
@@ -88,6 +91,8 @@ const ContentPage = () => {
     const handleSelectRepo = (repo: GitHubRepo) => {
         setRepoSelectorOpen(false);
         setExplorerOverride(true);
+        setActiveFilePath(null);
+        setPanelWidth(256);
         // Save to localStorage
         localStorage.setItem(SELECTED_REPO_STORAGE_KEY, JSON.stringify(repo));
         window.dispatchEvent(new Event(SELECTED_REPO_CHANGED_EVENT));
@@ -102,16 +107,45 @@ const ContentPage = () => {
     };
 
     const handleChangeRepo = () => {
+        setActiveFilePath(null);
         setRepoSelectorOpen(true);
     };
 
     const handleFileSelect = (path: string) => {
-        console.log("Selected file:", path);
-        // TODO: Handle file selection (open in editor, etc.)
+        setActiveFilePath(path);
+    };
+
+    const handleBackToExplorer = () => {
+        setActiveFilePath(null);
+    };
+
+    const handleResizeStart = (event: React.PointerEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        resizeStateRef.current = { startX: event.clientX, startWidth: panelWidth };
+    };
+
+    const handleResizeMove = (event: React.PointerEvent<HTMLDivElement>) => {
+        if (!resizeStateRef.current) return;
+
+        const delta = event.clientX - resizeStateRef.current.startX;
+        const next = resizeStateRef.current.startWidth + delta;
+        const clamped = Math.max(220, Math.min(800, next));
+        setPanelWidth(clamped);
+    };
+
+    const handleResizeEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+        if (!resizeStateRef.current) return;
+        resizeStateRef.current = null;
+        try {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        } catch {
+            // ignore
+        }
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-slate-950 text-slate-100">
+        <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100">
             <Toolbar />
             <div className="flex min-h-0 flex-1 overflow-hidden">
                 <ActivityBar 
@@ -121,14 +155,36 @@ const ContentPage = () => {
                 
                 {/* Explorer Panel */}
                 {explorerVisible && selectedRepo && (
-                    <div className="w-64 border-r border-slate-800">
-                        <FileExplorer
-                            key={selectedRepo.full_name}
-                            owner={selectedRepo.owner.login}
-                            repo={selectedRepo.name}
-                            repoFullName={selectedRepo.full_name}
-                            onFileSelect={handleFileSelect}
-                            onChangeRepo={handleChangeRepo}
+                    <div className="relative shrink-0 border-r border-slate-800 min-h-0" style={{ width: panelWidth }}>
+                        <div className={activeFilePath ? "hidden" : "block"}>
+                            <FileExplorer
+                                key={selectedRepo.full_name}
+                                owner={selectedRepo.owner.login}
+                                repo={selectedRepo.name}
+                                repoFullName={selectedRepo.full_name}
+                                onFileSelect={handleFileSelect}
+                                onChangeRepo={handleChangeRepo}
+                            />
+                        </div>
+
+                        {activeFilePath && (
+                            <FileViewer
+                                owner={selectedRepo.owner.login}
+                                repo={selectedRepo.name}
+                                path={activeFilePath}
+                                onBack={handleBackToExplorer}
+                            />
+                        )}
+
+                        {/* Drag-to-resize handle (VS Code style) */}
+                        <div
+                            role="separator"
+                            aria-orientation="vertical"
+                            onPointerDown={handleResizeStart}
+                            onPointerMove={handleResizeMove}
+                            onPointerUp={handleResizeEnd}
+                            onPointerCancel={handleResizeEnd}
+                            className="absolute right-0 top-0 h-full w-1 cursor-col-resize touch-none hover:bg-slate-700/40"
                         />
                     </div>
                 )}

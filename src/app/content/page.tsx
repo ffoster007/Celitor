@@ -33,7 +33,36 @@ const getSelectedRepoServerSnapshot = () => {
     return null;
 };
 
+const subscribeNoop = () => {
+    return () => {};
+};
+
+const getHydratedSnapshot = () => true;
+const getHydratedServerSnapshot = () => false;
+
+const isGitHubRepo = (value: unknown): value is GitHubRepo => {
+    if (!value || typeof value !== "object") return false;
+    const record = value as Record<string, unknown>;
+
+    const name = record.name;
+    const fullName = record.full_name;
+    const owner = record.owner;
+
+    if (typeof name !== "string" || typeof fullName !== "string") return false;
+    if (!owner || typeof owner !== "object") return false;
+    const ownerRecord = owner as Record<string, unknown>;
+    if (typeof ownerRecord.login !== "string") return false;
+
+    return true;
+};
+
 const ContentPage = () => {
+    const hydrated = useSyncExternalStore(
+        subscribeNoop,
+        getHydratedSnapshot,
+        getHydratedServerSnapshot
+    );
+
     const selectedRepoJson = useSyncExternalStore(
         subscribeToSelectedRepo,
         getSelectedRepoSnapshot,
@@ -43,7 +72,8 @@ const ContentPage = () => {
     const selectedRepo = useMemo<GitHubRepo | null>(() => {
         if (!selectedRepoJson) return null;
         try {
-            return JSON.parse(selectedRepoJson) as GitHubRepo;
+            const parsed: unknown = JSON.parse(selectedRepoJson);
+            return isGitHubRepo(parsed) ? parsed : null;
         } catch {
             return null;
         }
@@ -53,7 +83,7 @@ const ContentPage = () => {
     const [explorerOverride, setExplorerOverride] = useState<boolean | null>(null);
 
     const explorerVisible = selectedRepo ? (explorerOverride ?? true) : false;
-    const showRepoSelector = repoSelectorOpen || !selectedRepo;
+    const showRepoSelector = hydrated && (repoSelectorOpen || !selectedRepo);
 
     const handleSelectRepo = (repo: GitHubRepo) => {
         setRepoSelectorOpen(false);

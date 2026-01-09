@@ -154,9 +154,21 @@ const ContentPage = () => {
                 />
                 
                 {/* Explorer Panel */}
-                {explorerVisible && selectedRepo && (
-                    <div className="relative shrink-0 border-r border-slate-800 min-h-0" style={{ width: panelWidth }}>
-                        <div className={activeFilePath ? "hidden" : "block"}>
+                {selectedRepo && (
+                    <div
+                        className={
+                            "relative shrink-0 min-h-0 overflow-hidden " +
+                            (explorerVisible ? "border-r border-slate-800" : "border-r-0")
+                        }
+                        style={{ width: explorerVisible ? panelWidth : 0 }}
+                        aria-hidden={!explorerVisible}
+                    >
+                        <div
+                            className={
+                                (explorerVisible ? "opacity-100" : "opacity-0 pointer-events-none") +
+                                (activeFilePath ? " hidden" : " block")
+                            }
+                        >
                             <FileExplorer
                                 key={selectedRepo.full_name}
                                 owner={selectedRepo.owner.login}
@@ -167,25 +179,29 @@ const ContentPage = () => {
                             />
                         </div>
 
-                        {activeFilePath && (
-                            <FileViewer
-                                owner={selectedRepo.owner.login}
-                                repo={selectedRepo.name}
-                                path={activeFilePath}
-                                onBack={handleBackToExplorer}
-                            />
-                        )}
+                        <div className={explorerVisible && activeFilePath ? "block" : "hidden"}>
+                            {activeFilePath && (
+                                <FileViewer
+                                    owner={selectedRepo.owner.login}
+                                    repo={selectedRepo.name}
+                                    path={activeFilePath}
+                                    onBack={handleBackToExplorer}
+                                />
+                            )}
+                        </div>
 
                         {/* Drag-to-resize handle (VS Code style) */}
-                        <div
-                            role="separator"
-                            aria-orientation="vertical"
-                            onPointerDown={handleResizeStart}
-                            onPointerMove={handleResizeMove}
-                            onPointerUp={handleResizeEnd}
-                            onPointerCancel={handleResizeEnd}
-                            className="absolute right-0 top-0 h-full w-1 cursor-col-resize touch-none hover:bg-slate-700/40"
-                        />
+                        {explorerVisible && (
+                            <div
+                                role="separator"
+                                aria-orientation="vertical"
+                                onPointerDown={handleResizeStart}
+                                onPointerMove={handleResizeMove}
+                                onPointerUp={handleResizeEnd}
+                                onPointerCancel={handleResizeEnd}
+                                className="absolute right-0 top-0 h-full w-1 cursor-col-resize touch-none hover:bg-slate-700/40"
+                            />
+                        )}
                     </div>
                 )}
                 

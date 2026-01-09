@@ -166,7 +166,9 @@ const ContentPage = () => {
                         <div
                             className={
                                 (explorerVisible ? "opacity-100" : "opacity-0 pointer-events-none") +
-                                (activeFilePath ? " hidden" : " block")
+                                (activeFilePath
+                                    ? " hidden"
+                                    : " flex h-full min-h-0 flex-col")
                             }
                         >
                             <FileExplorer
@@ -179,7 +181,13 @@ const ContentPage = () => {
                             />
                         </div>
 
-                        <div className={explorerVisible && activeFilePath ? "block" : "hidden"}>
+                        <div
+                            className={
+                                explorerVisible && activeFilePath
+                                    ? "flex h-full min-h-0 flex-col"
+                                    : "hidden"
+                            }
+                        >
                             {activeFilePath && (
                                 <FileViewer
                                     owner={selectedRepo.owner.login}

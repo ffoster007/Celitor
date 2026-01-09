@@ -4,6 +4,8 @@
   </a>
 </p>
 
+Bookmark tool, repository analysis and management.
+
 ## Getting Started
 First, run the development server:
 

@@ -191,7 +191,7 @@ function AuthenticatedInteractionGuard() {
       <button
         type="button"
         role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer"
         onClick={() => setMenu({ open: false })}
       >
         Brige
@@ -202,7 +202,7 @@ function AuthenticatedInteractionGuard() {
       <button
         type="button"
         role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer"
         onClick={() => setViewMode((v) => !v)}
       >
         View mode
@@ -211,7 +211,7 @@ function AuthenticatedInteractionGuard() {
       <button
         type="button"
         role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer" 
         onClick={() => {
           setViewMode(false);
           setMenu({ open: false });
@@ -225,7 +225,7 @@ function AuthenticatedInteractionGuard() {
       <button
         type="button"
         role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer"
         onClick={() => setMenu({ open: false })}
       >
         Close

@@ -146,16 +146,21 @@ const ContentPage = () => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100">
-            <Toolbar />
+            <div data-celitor-view-hide>
+                <Toolbar />
+            </div>
             <div className="flex min-h-0 flex-1 overflow-hidden">
-                <ActivityBar 
-                    onExplorerToggle={handleExplorerToggle}
-                    explorerActive={explorerVisible}
-                />
+                <div data-celitor-view-hide>
+                    <ActivityBar 
+                        onExplorerToggle={handleExplorerToggle}
+                        explorerActive={explorerVisible}
+                    />
+                </div>
                 
                 {/* Explorer Panel */}
                 {selectedRepo && (
                     <div
+                        data-celitor-view-hide
                         className={
                             "relative shrink-0 min-h-0 overflow-hidden " +
                             (explorerVisible ? "border-r border-slate-800" : "border-r-0")
@@ -213,21 +218,23 @@ const ContentPage = () => {
                     </div>
                 )}
                 
-                <main className="flex min-h-0 flex-1">
+                <main data-celitor-view-content className="flex min-h-0 flex-1">
                     <InfinityCanvas />
                 </main>
             </div>
 
             {/* Repository Selector Modal */}
             {showRepoSelector && (
-                <RepoSelector
-                    onSelectRepo={handleSelectRepo}
-                    onClose={() => {
-                        if (selectedRepo) {
-                            setRepoSelectorOpen(false);
-                        }
-                    }}
-                />
+                <div data-celitor-view-hide>
+                    <RepoSelector
+                        onSelectRepo={handleSelectRepo}
+                        onClose={() => {
+                            if (selectedRepo) {
+                                setRepoSelectorOpen(false);
+                            }
+                        }}
+                    />
+                </div>
             )}
         </div>
     );

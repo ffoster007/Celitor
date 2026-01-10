@@ -57,6 +57,8 @@ function AuthenticatedInteractionGuard() {
     };
   }, [viewMode]);
 
+  const viewModeLabel = viewMode ? "Unview mode" : "View mode";
+
   useEffect(() => {
     const clamp = (value: number, min: number, max: number) =>
       Math.max(min, Math.min(max, value));
@@ -174,62 +176,78 @@ function AuthenticatedInteractionGuard() {
     };
   }, [blockedKeys]);
 
-  if (!menu.open) return null;
 
   return (
-    <div
-      data-celitor-context-menu
-      role="menu"
-      aria-label="Celitor context menu"
-      className="fixed z-[9999] min-w-[220px] select-none overflow-hidden rounded-xl bg-white/90 text-zinc-900 shadow-lg ring-1 ring-zinc-200/70 backdrop-blur dark:bg-zinc-950/85 dark:text-zinc-50 dark:ring-zinc-800"
-      style={{ left: menu.x, top: menu.y }}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    >
-      <button
-        type="button"
-        role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer"
-        onClick={() => setMenu({ open: false })}
-      >
-        Brige
-      </button>
+    <>
+      {viewMode && (
+        <div
+          data-celitor-view-allow
+          className="fixed bottom-4 right-4 z-[9998] max-w-[320px] rounded-xl bg-white/90 px-3 py-2 text-xs text-zinc-700 shadow-lg ring-1 ring-zinc-200/70 backdrop-blur dark:bg-zinc-950/85 dark:text-zinc-200 dark:ring-zinc-800"
+        >
+          To return to normal, right-click and select “Unview mode”.
+        </div>
+      )}
 
-      <div className="h-px bg-zinc-200/70 dark:bg-zinc-800" />
+      {menu.open && (
+        <div
+          data-celitor-context-menu
+          data-celitor-view-allow
+          role="menu"
+          aria-label="Celitor context menu"
+          className="fixed z-[9999] min-w-[220px] select-none overflow-hidden rounded-xl bg-white/90 text-zinc-900 shadow-lg ring-1 ring-zinc-200/70 backdrop-blur dark:bg-zinc-950/85 dark:text-zinc-50 dark:ring-zinc-800"
+          style={{ left: menu.x, top: menu.y }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+            onClick={() => setMenu({ open: false })}
+          >
+            Brige
+          </button>
 
-      <button
-        type="button"
-        role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer"
-        onClick={() => setViewMode((v) => !v)}
-      >
-        View mode
-      </button>
+          <div className="h-px bg-zinc-200/70 dark:bg-zinc-800" />
 
-      <button
-        type="button"
-        role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer" 
-        onClick={() => {
-          setViewMode(false);
-          setMenu({ open: false });
-        }}
-      >
-        Reset
-      </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+            onClick={() => {
+              setViewMode((v) => !v);
+              setMenu({ open: false });
+            }}
+          >
+            {viewModeLabel}
+          </button>
 
-      <div className="h-px bg-zinc-200/70 dark:bg-zinc-800" />
+          <button
+            type="button"
+            role="menuitem"
+            className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+            onClick={() => {
+              setViewMode(false);
+              setMenu({ open: false });
+            }}
+          >
+            Reset
+          </button>
 
-      <button
-        type="button"
-        role="menuitem"
-        className="w-full px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70 cursor-pointer"
-        onClick={() => setMenu({ open: false })}
-      >
-        Close
-      </button>
-    </div>
+          <div className="h-px bg-zinc-200/70 dark:bg-zinc-800" />
+
+          <button
+            type="button"
+            role="menuitem"
+            className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
+            onClick={() => setMenu({ open: false })}
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </>
   );
 }

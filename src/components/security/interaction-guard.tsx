@@ -14,6 +14,18 @@ function isEditableTarget(target: EventTarget | null) {
   return target.isContentEditable;
 }
 
+function shouldAllowNativeContextMenu(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+
+  // Allow app-specific context menus (e.g., file explorer right-click)
+  if (target.closest?.("[data-celitor-allow-context-menu]")) return true;
+
+  // Allow normal context menu in editable fields
+  if (isEditableTarget(target)) return true;
+
+  return false;
+}
+
 export function InteractionGuard() {
   const { status } = useSession();
   const enabled = status === "authenticated";
@@ -84,6 +96,7 @@ function AuthenticatedInteractionGuard() {
     };
 
     const onContextMenu = (e: MouseEvent) => {
+      if (shouldAllowNativeContextMenu(e.target)) return;
       e.preventDefault();
       e.stopPropagation();
       openMenuAt(e.clientX, e.clientY, "mouse");

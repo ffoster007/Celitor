@@ -56,10 +56,6 @@ const AvatarMenu = () => {
 					</div>
 					<div className="space-y-1">
 						<button className="flex w-full cursor-pointer items-center space-x-2 rounded-sm px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-900">
-							<User className="h-4 w-4 text-slate-300" />
-							<span>Profile</span>
-						</button>
-						<button className="flex w-full cursor-pointer items-center space-x-2 rounded-sm px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-900">
 							<Settings className="h-4 w-4 text-slate-300" />
 							<span>Settings</span>
 						</button>

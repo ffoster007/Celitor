@@ -12,8 +12,8 @@ interface ActivityBarProps {
 }
 
 const navItems = [
-	{ id: "explorer", icon: Files, tooltip: "Explorer" },
-	{ id: "album", icon: Album, tooltip: "Album" },
+	{ id: "explorer", icon: Files, tooltip: "Explorer", showIndicator: true },
+	{ id: "album", icon: Album, tooltip: "Album", showIndicator: false },
 ];
 
 const ActivityBar = ({ onExplorerToggle, explorerActive = false }: ActivityBarProps) => {
@@ -35,7 +35,7 @@ const ActivityBar = ({ onExplorerToggle, explorerActive = false }: ActivityBarPr
 	return (
 		<aside className="flex w-12 flex-col justify-between border-r border-slate-800 bg-slate-950 py-2">
 			<div className="flex flex-col">
-				{navItems.map(({ id, icon: Icon, tooltip }) => {
+				{navItems.map(({ id, icon: Icon, tooltip, showIndicator }) => {
 					const isActive = (id === "explorer" ? currentActive : active) === id;
 					return (
 						<button
@@ -49,7 +49,7 @@ const ActivityBar = ({ onExplorerToggle, explorerActive = false }: ActivityBarPr
 							title={tooltip}
 						>
 							<Icon className="h-5 w-5" />
-							{isActive && (
+							{isActive && showIndicator && (
 								<span
 									className="absolute left-0 h-6 w-0.5 rounded-full bg-slate-100"
 									aria-hidden

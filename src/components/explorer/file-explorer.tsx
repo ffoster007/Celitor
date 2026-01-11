@@ -9,8 +9,17 @@ import {
   Folder,
   FolderOpen,
   Loader2,
+  GitBranch,
 } from "lucide-react";
 import type { GitHubContent } from "@/lib/github";
+
+interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  path: string;
+  name: string;
+}
 
 interface FileTreeItemProps {
   item: GitHubContent;
@@ -18,6 +27,7 @@ interface FileTreeItemProps {
   repo: string;
   level: number;
   onFileSelect?: (path: string) => void;
+  onBridgeRequest?: (path: string) => void;
 }
 
 const FileTreeItem = ({
@@ -26,11 +36,19 @@ const FileTreeItem = ({
   repo,
   level,
   onFileSelect,
+  onBridgeRequest,
 }: FileTreeItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<GitHubContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    path: "",
+    name: "",
+  });
 
   const handleToggle = useCallback(async () => {
     if (item.type === "file") {
@@ -66,6 +84,49 @@ const FileTreeItem = ({
     setIsOpen(true);
   }, [item, owner, repo, isOpen, loaded, onFileSelect]);
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Only show context menu for code files
+    const ext = item.name.split(".").pop()?.toLowerCase();
+    const isCode = ["ts", "tsx", "js", "jsx", "mjs", "py", "go", "rs"].includes(ext || "");
+    
+    if (item.type === "file" && isCode) {
+      setContextMenu({
+        visible: true,
+        x: e.clientX,
+        y: e.clientY,
+        path: item.path,
+        name: item.name,
+      });
+    }
+  }, [item]);
+
+  const handleCloseContextMenu = useCallback(() => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  const handleBridgeClick = useCallback(() => {
+    console.log("Bridge clicked for:", item.path);
+    handleCloseContextMenu();
+    if (onBridgeRequest) {
+      console.log("Calling onBridgeRequest...");
+      onBridgeRequest(item.path);
+    } else {
+      console.error("onBridgeRequest is not defined!");
+    }
+  }, [item.path, onBridgeRequest, handleCloseContextMenu]);
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    if (contextMenu.visible) {
+      const handleClickOutside = () => handleCloseContextMenu();
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [contextMenu.visible, handleCloseContextMenu]);
+
   const isFolder = item.type === "dir";
 
   // Get file icon based on extension
@@ -77,6 +138,7 @@ const FileTreeItem = ({
     <div>
       <button
         onClick={handleToggle}
+        onContextMenu={handleContextMenu}
         className="group flex w-full items-center gap-1 py-0.5 pr-2 text-left text-sm text-slate-300 hover:bg-slate-800/50"
         style={{ paddingLeft: `${level * 12 + 4}px` }}
       >
@@ -108,6 +170,34 @@ const FileTreeItem = ({
         <span className="truncate">{item.name}</span>
       </button>
 
+      {/* Context Menu */}
+      {contextMenu.visible && (
+        <div
+          className="fixed z-[100] min-w-[160px] rounded-md border border-slate-700 bg-slate-900 py-1 shadow-xl"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleBridgeClick}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800"
+          >
+            <GitBranch className="h-4 w-4 text-blue-400" />
+            <span>Bridge</span>
+          </button>
+          <div className="mx-2 my-1 h-px bg-slate-700" />
+          <button
+            onClick={() => {
+              handleCloseContextMenu();
+              onFileSelect?.(item.path);
+            }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800"
+          >
+            <File className="h-4 w-4 text-slate-400" />
+            <span>Open File</span>
+          </button>
+        </div>
+      )}
+
       {/* Children */}
       {isFolder && isOpen && children.length > 0 && (
         <div>
@@ -119,6 +209,7 @@ const FileTreeItem = ({
               repo={repo}
               level={level + 1}
               onFileSelect={onFileSelect}
+              onBridgeRequest={onBridgeRequest}
             />
           ))}
         </div>
@@ -133,6 +224,7 @@ interface FileExplorerProps {
   repoFullName: string;
   onFileSelect?: (path: string) => void;
   onChangeRepo?: () => void;
+  onBridgeRequest?: (path: string) => void;
 }
 
 const FileExplorer = ({
@@ -141,6 +233,7 @@ const FileExplorer = ({
   repoFullName,
   onFileSelect,
   onChangeRepo,
+  onBridgeRequest,
 }: FileExplorerProps) => {
   const [contents, setContents] = useState<GitHubContent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,6 +354,7 @@ const FileExplorer = ({
               repo={repo}
               level={0}
               onFileSelect={onFileSelect}
+              onBridgeRequest={onBridgeRequest}
             />
           ))
         )}

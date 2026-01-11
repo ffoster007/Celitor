@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore, useCallback } from "react";
 import ActivityBar from "@/components/activitybar/page";
 import InfinityCanvas from "@/components/interface/infinitycanvas";
 import Toolbar from "@/components/toolbar/page";
 import { FileExplorer, FileViewer, RepoSelector } from "@/components/explorer";
+import { BridgeView, BridgeLoading, type BridgeData } from "@/components/bridge";
 import type { GitHubRepo } from "@/lib/github";
 
 const SELECTED_REPO_STORAGE_KEY = "celitor_selected_repo";
@@ -85,6 +86,11 @@ const ContentPage = () => {
     const [panelWidth, setPanelWidth] = useState(256);
     const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
+    // Bridge state
+    const [bridgeLoading, setBridgeLoading] = useState(false);
+    const [bridgeData, setBridgeData] = useState<BridgeData | null>(null);
+    const [bridgeError, setBridgeError] = useState<string | null>(null);
+
     const explorerVisible = selectedRepo ? (explorerOverride ?? true) : false;
     const showRepoSelector = hydrated && (repoSelectorOpen || !selectedRepo);
 
@@ -118,6 +124,60 @@ const ContentPage = () => {
     const handleBackToExplorer = () => {
         setActiveFilePath(null);
     };
+
+    // Bridge handlers
+    const handleBridgeRequest = useCallback(async (filePath: string) => {
+        if (!selectedRepo) {
+            console.error("No repo selected");
+            return;
+        }
+
+        console.log("Bridge request started for:", filePath);
+        setBridgeLoading(true);
+        setBridgeError(null);
+
+        try {
+            console.log("Fetching from API...");
+            const response = await fetch("/api/bridge/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    filePath,
+                    owner: selectedRepo.owner.login,
+                    repo: selectedRepo.name,
+                }),
+            });
+
+            console.log("Response status:", response.status);
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Failed to analyze dependencies");
+            }
+
+            const data: BridgeData = await response.json();
+            console.log("Bridge data received:", data);
+            setBridgeData(data);
+        } catch (error) {
+            console.error("Bridge analysis error:", error);
+            setBridgeError(error instanceof Error ? error.message : "An error occurred");
+        } finally {
+            setBridgeLoading(false);
+        }
+    }, [selectedRepo]);
+
+    const handleBridgeClose = useCallback(() => {
+        setBridgeData(null);
+        setBridgeError(null);
+    }, []);
+
+    const handleBridgeNodeClick = useCallback((path: string) => {
+        // Open the file in the file viewer
+        setActiveFilePath(path);
+        handleBridgeClose();
+    }, [handleBridgeClose]);
 
     const handleResizeStart = (event: React.PointerEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -183,6 +243,7 @@ const ContentPage = () => {
                                 repoFullName={selectedRepo.full_name}
                                 onFileSelect={handleFileSelect}
                                 onChangeRepo={handleChangeRepo}
+                                onBridgeRequest={handleBridgeRequest}
                             />
                         </div>
 
@@ -234,6 +295,31 @@ const ContentPage = () => {
                             }
                         }}
                     />
+                </div>
+            )}
+
+            {/* Bridge Loading */}
+            {bridgeLoading && <BridgeLoading />}
+
+            {/* Bridge View */}
+            {bridgeData && !bridgeLoading && (
+                <BridgeView
+                    data={bridgeData}
+                    onClose={handleBridgeClose}
+                    onNodeClick={handleBridgeNodeClick}
+                />
+            )}
+
+            {/* Bridge Error Toast */}
+            {bridgeError && (
+                <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-red-500/50 bg-red-950/90 px-4 py-3 shadow-xl">
+                    <p className="text-sm text-red-300">{bridgeError}</p>
+                    <button
+                        onClick={() => setBridgeError(null)}
+                        className="mt-2 text-xs text-red-400 hover:text-red-300"
+                    >
+                        Dismiss
+                    </button>
                 </div>
             )}
         </div>

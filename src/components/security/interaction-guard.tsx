@@ -214,14 +214,6 @@ function AuthenticatedInteractionGuard() {
             e.stopPropagation();
           }}
         >
-          <button
-            type="button"
-            role="menuitem"
-            className="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-zinc-100/70 focus-visible:bg-zinc-100/70 focus-visible:outline-none dark:hover:bg-zinc-900/70 dark:focus-visible:bg-zinc-900/70"
-            onClick={() => setMenu({ open: false })}
-          >
-            Brige
-          </button>
 
           <div className="h-px bg-zinc-200/70 dark:bg-zinc-800" />
 

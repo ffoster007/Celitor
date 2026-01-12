@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchFileContent, fetchRepoContents } from "@/lib/github";
+import { analyzeWithRustBackend, checkRustBackendHealth } from "@/lib/rust-api";
 import type { 
   BridgeData, 
   FileDependency, 
@@ -11,12 +12,35 @@ import type {
   BridgeEdge 
 } from "@/types/bridge";
 
-// File extensions that can have dependencies
+// Use Rust backend for high-performance analysis (Railway.app hosted)
+const USE_RUST_BACKEND = process.env.USE_RUST_BACKEND !== "false";
+
+// File extensions that can have dependencies (extended for multi-language support)
 const ANALYZABLE_EXTENSIONS = [
+  // JavaScript/TypeScript
   ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs",
+  // Frontend frameworks
   ".vue", ".svelte", ".astro",
+  // Python
+  ".py", ".pyw", ".pyi",
+  // Rust
+  ".rs",
+  // Go
+  ".go",
+  // Java/Kotlin
+  ".java", ".kt", ".kts",
+  // C#
+  ".cs",
+  // C/C++
+  ".c", ".cpp", ".cxx", ".cc", ".h", ".hpp", ".hxx", ".hh",
+  // Ruby
+  ".rb", ".rake",
+  // PHP
+  ".php", ".phtml",
+  // Styles
   ".css", ".scss", ".sass", ".less",
-  ".json", ".yaml", ".yml"
+  // Config
+  ".json", ".yaml", ".yml", ".toml"
 ];
 
 // Import pattern regex for various file types
@@ -391,6 +415,33 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Try Rust backend first for high-performance analysis
+    if (USE_RUST_BACKEND) {
+      const isRustAvailable = await checkRustBackendHealth();
+      
+      if (isRustAvailable) {
+        console.log("[Bridge] Using Rust backend for analysis");
+        const rustResult = await analyzeWithRustBackend({
+          owner,
+          repo,
+          filePath,
+          accessToken: session.user.accessToken,
+        });
+
+        if (rustResult.success && rustResult.data) {
+          return NextResponse.json(rustResult);
+        }
+        
+        // Log error but fall through to TypeScript fallback
+        console.warn("[Bridge] Rust backend failed, falling back to TypeScript:", rustResult.error);
+      } else {
+        console.log("[Bridge] Rust backend unavailable, using TypeScript fallback");
+      }
+    }
+
+    // Fallback to TypeScript implementation (for JS/TS files only)
+    console.log("[Bridge] Using TypeScript fallback implementation");
 
     // Fetch the source file content
     const fileContent = await fetchFileContent(

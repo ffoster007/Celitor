@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore, useCallback } from "react";
 import ActivityBar from "@/components/activitybar/page";
-import InfinityCanvas from "@/components/interface/infinitycanvas";
 import Toolbar from "@/components/toolbar/page";
 import { FileExplorer, FileViewer, RepoSelector } from "@/components/explorer";
+import { BridgeVisualization } from "@/components/bridge";
+import { FileContextMenu } from "@/components/bridge/file-context-menu";
+import UsageGuide from "@/components/content/usage-guide";
 import type { GitHubRepo } from "@/lib/github";
+import type { BridgeData, FileContextMenuState } from "@/types/bridge";
 
 const SELECTED_REPO_STORAGE_KEY = "celitor_selected_repo";
 const SELECTED_REPO_CHANGED_EVENT = "celitor:selected_repo_changed";
@@ -85,6 +88,17 @@ const ContentPage = () => {
     const [panelWidth, setPanelWidth] = useState(256);
     const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
+    // Bridge system state
+    const [bridgeData, setBridgeData] = useState<BridgeData | null>(null);
+    const [bridgeLoading, setBridgeLoading] = useState(false);
+    const [bridgeError, setBridgeError] = useState<string | null>(null);
+    const [contextMenu, setContextMenu] = useState<FileContextMenuState>({
+        isOpen: false,
+        position: { x: 0, y: 0 },
+        filePath: "",
+        fileName: "",
+    });
+
     const explorerVisible = selectedRepo ? (explorerOverride ?? true) : false;
     const showRepoSelector = hydrated && (repoSelectorOpen || !selectedRepo);
 
@@ -144,6 +158,60 @@ const ContentPage = () => {
         }
     };
 
+    // Bridge system handlers
+    const handleContextMenu = useCallback((event: React.MouseEvent, path: string, name: string) => {
+        setContextMenu({
+            isOpen: true,
+            position: { x: event.clientX, y: event.clientY },
+            filePath: path,
+            fileName: name,
+        });
+    }, []);
+
+    const handleCloseContextMenu = useCallback(() => {
+        setContextMenu(prev => ({ ...prev, isOpen: false }));
+    }, []);
+
+    const handleBridge = useCallback(async (filePath: string) => {
+        if (!selectedRepo) return;
+
+        setBridgeLoading(true);
+        setBridgeError(null);
+        setBridgeData(null);
+
+        try {
+            const response = await fetch("/api/github/bridge", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    owner: selectedRepo.owner.login,
+                    repo: selectedRepo.name,
+                    filePath,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || "Failed to analyze dependencies");
+            }
+
+            setBridgeData(result.data);
+        } catch (err) {
+            setBridgeError(err instanceof Error ? err.message : "An error occurred");
+        } finally {
+            setBridgeLoading(false);
+        }
+    }, [selectedRepo]);
+
+    const handleCloseBridge = useCallback(() => {
+        setBridgeData(null);
+        setBridgeError(null);
+        setBridgeLoading(false);
+    }, []);
+
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100">
             <div data-celitor-view-hide>
@@ -183,6 +251,7 @@ const ContentPage = () => {
                                 repoFullName={selectedRepo.full_name}
                                 onFileSelect={handleFileSelect}
                                 onChangeRepo={handleChangeRepo}
+                                onContextMenu={handleContextMenu}
                             />
                         </div>
 
@@ -218,8 +287,18 @@ const ContentPage = () => {
                     </div>
                 )}
                 
-                <main data-celitor-view-content className="flex min-h-0 flex-1">
-                    <InfinityCanvas />
+                <main data-celitor-view-content className="flex min-h-0 flex-1 relative">
+                    <UsageGuide />
+                    
+                    {/* Bridge Visualization Overlay */}
+                    {(bridgeData || bridgeLoading || bridgeError) && (
+                        <BridgeVisualization
+                            data={bridgeData}
+                            isLoading={bridgeLoading}
+                            error={bridgeError}
+                            onClose={handleCloseBridge}
+                        />
+                    )}
                 </main>
             </div>
 
@@ -236,6 +315,14 @@ const ContentPage = () => {
                     />
                 </div>
             )}
+
+            {/* File Context Menu */}
+            <FileContextMenu
+                state={contextMenu}
+                onClose={handleCloseContextMenu}
+                onBridge={handleBridge}
+                onViewFile={handleFileSelect}
+            />
         </div>
     );
 };

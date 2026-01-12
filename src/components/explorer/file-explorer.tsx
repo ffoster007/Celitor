@@ -18,6 +18,7 @@ interface FileTreeItemProps {
   repo: string;
   level: number;
   onFileSelect?: (path: string) => void;
+  onContextMenu?: (event: React.MouseEvent, path: string, name: string) => void;
 }
 
 const FileTreeItem = ({
@@ -26,6 +27,7 @@ const FileTreeItem = ({
   repo,
   level,
   onFileSelect,
+  onContextMenu,
 }: FileTreeItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<GitHubContent[]>([]);
@@ -73,10 +75,18 @@ const FileTreeItem = ({
     return <File className="h-4 w-4 shrink-0 text-slate-400" />;
   };
 
+  const handleRightClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onContextMenu?.(event, item.path, item.name);
+  };
+
   return (
     <div>
       <button
         onClick={handleToggle}
+        onContextMenu={handleRightClick}
+        data-celitor-allow-context-menu
         className="group flex w-full items-center gap-1 py-0.5 pr-2 text-left text-sm text-slate-300 hover:bg-slate-800/50"
         style={{ paddingLeft: `${level * 12 + 4}px` }}
       >
@@ -119,6 +129,7 @@ const FileTreeItem = ({
               repo={repo}
               level={level + 1}
               onFileSelect={onFileSelect}
+              onContextMenu={onContextMenu}
             />
           ))}
         </div>
@@ -133,6 +144,7 @@ interface FileExplorerProps {
   repoFullName: string;
   onFileSelect?: (path: string) => void;
   onChangeRepo?: () => void;
+  onContextMenu?: (event: React.MouseEvent, path: string, name: string) => void;
 }
 
 const FileExplorer = ({
@@ -141,6 +153,7 @@ const FileExplorer = ({
   repoFullName,
   onFileSelect,
   onChangeRepo,
+  onContextMenu,
 }: FileExplorerProps) => {
   const [contents, setContents] = useState<GitHubContent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,6 +274,7 @@ const FileExplorer = ({
               repo={repo}
               level={0}
               onFileSelect={onFileSelect}
+              onContextMenu={onContextMenu}
             />
           ))
         )}

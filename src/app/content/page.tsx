@@ -218,7 +218,7 @@ const ContentPage = () => {
                 <Toolbar />
             </div>
             <div className="flex min-h-0 flex-1 overflow-hidden">
-                <div data-celitor-view-hide>
+                <div data-celitor-view-hide className="h-full shrink-0">
                     <ActivityBar 
                         onExplorerToggle={handleExplorerToggle}
                         explorerActive={explorerVisible}

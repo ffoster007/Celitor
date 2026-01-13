@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Network, FileCode, Copy } from "lucide-react";
+import { Network, FileCode } from "lucide-react";
 import type { FileContextMenuState } from "@/types/bridge";
 
 interface FileContextMenuProps {
@@ -17,7 +17,6 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
   onClose,
   onBridge,
   onViewFile,
-  onCopyPath,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -86,16 +85,6 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
     onClose();
   };
 
-  const handleCopyPath = async () => {
-    try {
-      await navigator.clipboard.writeText(state.filePath);
-    } catch (err) {
-      console.error("Failed to copy path:", err);
-    }
-    onCopyPath?.(state.filePath);
-    onClose();
-  };
-
   return (
     <div
       ref={menuRef}
@@ -119,7 +108,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         {isAnalyzable && (
           <button
             onClick={handleBridge}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-blue-600/30 hover:text-blue-200 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-blue-600/30 hover:text-blue-200 transition-colors cursor-pointer"
           >
             <Network className="h-4 w-4 text-blue-400" />
             <span>Bridge</span>
@@ -131,7 +120,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         {onViewFile && (
           <button
             onClick={handleViewFile}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer"
           >
             <FileCode className="h-4 w-4 text-slate-400" />
             <span>View File</span>
@@ -139,13 +128,6 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         )}
 
         {/* Copy path */}
-        <button
-          onClick={handleCopyPath}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
-        >
-          <Copy className="h-4 w-4 text-slate-400" />
-          <span>Copy Path</span>
-        </button>
 
         {/* Divider */}
         <div className="my-1 border-t border-slate-700" />

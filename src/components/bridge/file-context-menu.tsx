@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Network, FileCode, Copy } from "lucide-react";
+import { Network, FileCode } from "lucide-react";
 import type { FileContextMenuState } from "@/types/bridge";
 
 interface FileContextMenuProps {
@@ -17,7 +17,6 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
   onClose,
   onBridge,
   onViewFile,
-  onCopyPath,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -86,29 +85,19 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
     onClose();
   };
 
-  const handleCopyPath = async () => {
-    try {
-      await navigator.clipboard.writeText(state.filePath);
-    } catch (err) {
-      console.error("Failed to copy path:", err);
-    }
-    onCopyPath?.(state.filePath);
-    onClose();
-  };
-
   return (
     <div
       ref={menuRef}
       data-celitor-allow-context-menu
-      className="fixed z-[100] min-w-[180px] bg-slate-800 border border-slate-700 rounded-lg shadow-xl py-1 overflow-hidden"
+      className="fixed z-[100] min-w-[180px] bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 overflow-hidden"
       style={{
         left: state.position.x,
         top: state.position.y,
       }}
     >
       {/* File name header */}
-      <div className="px-3 py-2 border-b border-slate-700">
-        <p className="text-xs text-slate-400 truncate max-w-[200px]" title={state.fileName}>
+      <div className="px-3 py-2 border-b border-gray-700">
+        <p className="text-xs text-gray-400 truncate max-w-[200px]" title={state.fileName}>
           {state.fileName}
         </p>
       </div>
@@ -119,11 +108,11 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         {isAnalyzable && (
           <button
             onClick={handleBridge}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-blue-600/30 hover:text-blue-200 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-blue-600/30 hover:text-blue-200 transition-colors cursor-pointer"
           >
             <Network className="h-4 w-4 text-blue-400" />
             <span>Bridge</span>
-            <span className="ml-auto text-xs text-slate-500">Analyze deps</span>
+            <span className="ml-auto text-xs text-gray-500">Analyze deps</span>
           </button>
         )}
 
@@ -131,28 +120,21 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         {onViewFile && (
           <button
             onClick={handleViewFile}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <FileCode className="h-4 w-4 text-slate-400" />
+            <FileCode className="h-4 w-4 text-gray-400" />
             <span>View File</span>
           </button>
         )}
 
         {/* Copy path */}
-        <button
-          onClick={handleCopyPath}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 transition-colors"
-        >
-          <Copy className="h-4 w-4 text-slate-400" />
-          <span>Copy Path</span>
-        </button>
 
         {/* Divider */}
-        <div className="my-1 border-t border-slate-700" />
+        <div className="my-1 border-t border-gray-700" />
 
         {/* Info text for non-analyzable files */}
         {!isAnalyzable && (
-          <div className="px-3 py-2 text-xs text-slate-500">
+          <div className="px-3 py-2 text-xs text-gray-500">
             Bridge analysis is only available for code files (.ts, .tsx, .js, .jsx)
           </div>
         )}

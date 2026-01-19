@@ -72,7 +72,7 @@ const FileTreeItem = ({
 
   // Get file icon based on extension
   const getFileIcon = () => {
-    return <File className="h-4 w-4 shrink-0 text-slate-400" />;
+    return <File className="h-4 w-4 shrink-0 text-gray-400" />;
   };
 
   const handleRightClick = (event: React.MouseEvent) => {
@@ -87,17 +87,17 @@ const FileTreeItem = ({
         onClick={handleToggle}
         onContextMenu={handleRightClick}
         data-celitor-allow-context-menu
-        className="group flex w-full items-center gap-1 py-0.5 pr-2 text-left text-sm text-slate-300 hover:bg-slate-800/50"
+        className="group flex w-full items-center gap-1 py-0.5 pr-2 text-left text-sm text-gray-300 hover:bg-gray-900/50"
         style={{ paddingLeft: `${level * 12 + 4}px` }}
       >
         {/* Chevron for folders */}
         {isFolder ? (
           loading ? (
-            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-500" />
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-gray-500" />
           ) : isOpen ? (
-            <ChevronDown className="h-4 w-4 shrink-0 text-slate-500" />
+            <ChevronDown className="h-4 w-4 shrink-0 text-gray-500" />
           ) : (
-            <ChevronRight className="h-4 w-4 shrink-0 text-slate-500" />
+            <ChevronRight className="h-4 w-4 shrink-0 text-gray-500" />
           )
         ) : (
           <span className="w-4" />
@@ -226,10 +226,10 @@ const FileExplorer = ({
   }, [contents, loading, error]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-slate-900">
+    <div className="flex h-full min-h-0 flex-col bg-black">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-700 px-3 py-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <div className="flex items-center justify-between border-b border-gray-800 px-3 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
           Explorer
         </span>
       </div>
@@ -237,15 +237,15 @@ const FileExplorer = ({
       {/* Repo name */}
       <button
         onClick={onChangeRepo}
-        className="group flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 text-left hover:bg-slate-800/50 cursor-pointer"
+        className="group flex items-center justify-between gap-2 border-b border-gray-800 px-3 py-2 text-left hover:bg-gray-900/50 cursor-pointer"
       >
         <div className="flex min-w-0 items-center gap-2">
           <Folder className="h-4 w-4 shrink-0 text-yellow-500" />
-          <span className="truncate text-sm font-medium text-slate-200">
+          <span className="truncate text-sm font-medium text-white">
             {repoFullName}
           </span>
         </div>
-        <span className="shrink-0 text-xs font-medium text-slate-400 group-hover:text-slate-200">
+        <span className="shrink-0 text-xs font-medium text-gray-400 group-hover:text-white">
           Change
         </span>
       </button>
@@ -255,14 +255,14 @@ const FileExplorer = ({
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto py-1">
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
           </div>
         ) : error ? (
           <div className="px-3 py-4 text-center text-sm text-red-400">
             {error}
           </div>
         ) : contents.length === 0 ? (
-          <div className="px-3 py-4 text-center text-sm text-slate-500">
+          <div className="px-3 py-4 text-center text-sm text-gray-500">
             Empty repository
           </div>
         ) : (
@@ -282,13 +282,13 @@ const FileExplorer = ({
 
         {/* Scroll indicators */}
         {canScrollUp && (
-          <div className="pointer-events-none absolute top-0 left-0 right-0 flex items-start justify-center bg-gradient-to-b from-slate-900 to-transparent pt-1">
-            <ChevronUp className="h-4 w-4 text-slate-500" />
+          <div className="pointer-events-none absolute top-0 left-0 right-0 flex items-start justify-center bg-gradient-to-b from-black to-transparent pt-1">
+            <ChevronUp className="h-4 w-4 text-gray-500" />
           </div>
         )}
         {canScrollDown && (
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center bg-gradient-to-t from-slate-900 to-transparent pb-1">
-            <ChevronDown className="h-4 w-4 text-slate-500" />
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center bg-gradient-to-t from-black to-transparent pb-1">
+            <ChevronDown className="h-4 w-4 text-gray-500" />
           </div>
         )}
       </div>

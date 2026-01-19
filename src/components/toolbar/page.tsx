@@ -6,7 +6,7 @@ import Image from "next/image";
 const Toolbar = () => {
 
 	return (
-		<header className="sticky top-0 z-20 w-full border-b border-slate-800 bg-slate-950">
+		<header className="sticky top-0 z-20 w-full border-b border-gray-800 bg-black">
 			<div className="flex h-12 items-center justify-between px-3">
 				<div className="flex items-center space-x-3">
 					<div className="flex h-8 w-8 items-center justify-center">
@@ -20,7 +20,7 @@ const Toolbar = () => {
 						/>
 					</div>
 					<div>
-						<div className="flex items-center space-x-2 text-[11px] uppercase tracking-[0.08em] text-slate-400">
+						<div className="flex items-center space-x-2 text-[11px] uppercase tracking-[0.08em] text-gray-400">
 						</div>
 					</div>
 				</div>

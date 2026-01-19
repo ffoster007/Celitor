@@ -41,13 +41,13 @@ export default function InfinityCanvas({
 		const minorAlpha = 0.06;
 		const majorAlpha = 0.12;
 
-		// Use dark grid lines on white background
+		// Use light grid lines on dark background
 		return {
 			backgroundImage: [
-				`linear-gradient(rgba(0,0,0,${majorAlpha}) 1px, transparent 1px)`,
-				`linear-gradient(90deg, rgba(0,0,0,${majorAlpha}) 1px, transparent 1px)`,
-				`linear-gradient(rgba(0,0,0,${minorAlpha}) 1px, transparent 1px)`,
-				`linear-gradient(90deg, rgba(0,0,0,${minorAlpha}) 1px, transparent 1px)`,
+				`linear-gradient(rgba(255,255,255,${majorAlpha}) 1px, transparent 1px)`,
+				`linear-gradient(90deg, rgba(255,255,255,${majorAlpha}) 1px, transparent 1px)`,
+				`linear-gradient(rgba(255,255,255,${minorAlpha}) 1px, transparent 1px)`,
+				`linear-gradient(90deg, rgba(255,255,255,${minorAlpha}) 1px, transparent 1px)`,
 			].join(", "),
 			backgroundSize: `${major}px ${major}px, ${major}px ${major}px, ${minor}px ${minor}px, ${minor}px ${minor}px`,
 			backgroundPosition: `${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px`,
@@ -58,7 +58,7 @@ export default function InfinityCanvas({
 		<div
 			ref={containerRef}
 			className={
-				"relative h-full w-full select-none overflow-hidden bg-white text-slate-900" +
+				"relative h-full w-full select-none overflow-hidden bg-black text-white" +
 				(className ? ` ${className}` : "")
 			}
 			style={{ touchAction: "none" }}

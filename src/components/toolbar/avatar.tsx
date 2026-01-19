@@ -67,7 +67,7 @@ const AvatarMenu = () => {
 			<button
 				ref={buttonRef}
 				onClick={() => setOpen((prev) => !prev)}
-				className="flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-slate-900 text-slate-100 ring-1 ring-slate-800 transition hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30"
+				className="flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gray-900 text-white ring-1 ring-gray-800 transition hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400/30"
 				aria-label="User menu"
 			>
 				{session?.user?.image ? (
@@ -91,12 +91,12 @@ const AvatarMenu = () => {
 						className="fixed z-[60]"
 						style={{ left: anchor.left, top: anchor.top + 8, transform: "translateX(-100%)" }}
 					>
-						<div className="w-56 rounded-md border border-slate-800 bg-slate-950 p-1 shadow-lg shadow-black/40">
+						<div className="w-56 rounded-md border border-gray-800 bg-black p-1 shadow-lg shadow-black/40">
 							<div className="px-2 pb-2">
-								<div className="text-sm font-semibold text-slate-100">
+								<div className="text-sm font-semibold text-white">
 									{session?.user?.name || "Guest"}
 								</div>
-								<div className="text-xs text-slate-400">
+								<div className="text-xs text-gray-400">
 									{session?.user?.email || "anonymous@celitor.dev"}
 								</div>
 							</div>

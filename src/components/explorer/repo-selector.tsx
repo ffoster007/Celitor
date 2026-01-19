@@ -67,18 +67,18 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-2xl rounded-lg border border-slate-700 bg-slate-900 shadow-2xl">
+      <div className="mx-4 w-full max-w-2xl rounded-lg border border-gray-700 bg-gray-900 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-gray-700 px-4 py-3">
           <div className="flex items-center gap-2">
-            <GitBranch className="h-5 w-5 text-slate-400" />
-            <h2 className="text-lg font-semibold text-slate-100">
+            <GitBranch className="h-5 w-5 text-gray-400" />
+            <h2 className="text-lg font-semibold text-white">
               Select Repository
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="rounded p-1 text-slate-400 transition hover:bg-slate-800 hover:text-slate-200"
+            className="rounded p-1 text-gray-400 transition hover:bg-gray-800 hover:text-white"
           >
             <svg
               className="h-5 w-5"
@@ -97,15 +97,15 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
         </div>
 
         {/* Search */}
-        <div className="border-b border-slate-700 p-4">
+        <div className="border-b border-gray-700 p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search repositories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-md border border-slate-600 bg-slate-800 py-2 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-600 bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -114,24 +114,24 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
         <div className="max-h-96 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-              <span className="ml-2 text-slate-400">Loading repositories...</span>
+              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              <span className="ml-2 text-gray-400">Loading repositories...</span>
             </div>
           ) : error ? (
             <div className="py-12 text-center text-red-400">
               <p>{error}</p>
             </div>
           ) : filteredRepos.length === 0 ? (
-            <div className="py-12 text-center text-slate-400">
+            <div className="py-12 text-center text-gray-400">
               <p>No repositories found</p>
             </div>
           ) : (
-            <ul className="divide-y divide-slate-800">
+            <ul className="divide-y divide-gray-800">
               {filteredRepos.map((repo) => (
                 <li key={repo.id}>
                   <button
                     onClick={() => onSelectRepo(repo)}
-                    className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-800/50"
+                    className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-gray-800/50"
                   >
                     <Image
                       src={repo.owner.avatar_url}
@@ -142,7 +142,7 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="truncate font-medium text-slate-100">
+                        <span className="truncate font-medium text-white">
                           {repo.full_name}
                         </span>
                         {repo.private ? (
@@ -152,11 +152,11 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
                         )}
                       </div>
                       {repo.description && (
-                        <p className="mt-0.5 truncate text-sm text-slate-400">
+                        <p className="mt-1 text-sm text-gray-400">
                           {repo.description}
                         </p>
                       )}
-                      <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
+                      <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
                         {repo.language && <span>{repo.language}</span>}
                         <span>Updated {formatDate(repo.updated_at)}</span>
                       </div>

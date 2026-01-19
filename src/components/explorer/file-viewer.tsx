@@ -226,7 +226,7 @@ const tokenize = (content: string, language: Language): Token[] => {
 const tokenClassName = (type: TokenType) => {
   switch (type) {
     case "comment":
-      return "text-slate-500";
+      return "text-gray-500";
     case "string":
       return "text-emerald-400";
     case "number":
@@ -349,11 +349,11 @@ const FileViewer = ({
   }, [content, loading, error]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-slate-900">
-      <div className="flex items-center gap-2 border-b border-slate-700 px-3 py-2">
+    <div className="flex h-full min-h-0 flex-col bg-black">
+      <div className="flex items-center gap-2 border-b border-gray-700 px-3 py-2">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 rounded px-2 py-1 text-sm text-slate-300 hover:bg-slate-800/50 cursor-pointer"
+          className="flex items-center gap-1 rounded px-2 py-1 text-sm text-gray-300 hover:bg-gray-900/50 cursor-pointer"
           aria-label="Back to explorer"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -361,17 +361,17 @@ const FileViewer = ({
         </button>
 
         <div className="min-w-0 flex-1">
-          <div className="truncate text-xs font-semibold text-slate-200">
+          <div className="truncate text-xs font-semibold text-white">
             {filename}
           </div>
-          <div className="truncate text-[11px] text-slate-400">{path}</div>
+          <div className="truncate text-[11px] text-gray-400">{path}</div>
         </div>
       </div>
 
       <div className="relative flex min-h-0 flex-1 flex-col">
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
           </div>
         ) : error ? (
           <div className="py-4 text-center text-sm text-red-400">{error}</div>
@@ -381,20 +381,20 @@ const FileViewer = ({
               ref={scrollRef}
               className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3"
             >
-              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-5 text-slate-100 rounded-md border border-slate-800 bg-slate-950 p-3">
+              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-5 text-white rounded-md border border-gray-800 bg-black p-3">
                 {highlighted}
               </pre>
             </div>
 
             {/* Scroll indicators */}
             {canScrollUp && (
-              <div className="pointer-events-none absolute top-0 left-0 right-0 flex items-start justify-center bg-gradient-to-b from-slate-900 to-transparent pt-2">
-                <ChevronUp className="h-4 w-4 text-slate-400" />
+              <div className="pointer-events-none absolute top-0 left-0 right-0 flex items-start justify-center bg-gradient-to-b from-black to-transparent pt-2">
+                <ChevronUp className="h-4 w-4 text-gray-400" />
               </div>
             )}
             {canScrollDown && (
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center bg-gradient-to-t from-slate-900 to-transparent pb-2">
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex items-end justify-center bg-gradient-to-t from-black to-transparent pb-2">
+                <ChevronDown className="h-4 w-4 text-gray-400" />
               </div>
             )}
           </>

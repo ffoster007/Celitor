@@ -213,7 +213,7 @@ const ContentPage = () => {
     }, []);
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-slate-950 text-slate-100">
+        <div className="flex h-screen flex-col overflow-hidden bg-black text-white">
             <div data-celitor-view-hide>
                 <Toolbar />
             </div>
@@ -231,7 +231,7 @@ const ContentPage = () => {
                         data-celitor-view-hide
                         className={
                             "relative shrink-0 min-h-0 overflow-hidden " +
-                            (explorerVisible ? "border-r border-slate-800" : "border-r-0")
+                            (explorerVisible ? "border-r border-gray-800" : "border-r-0")
                         }
                         style={{ width: explorerVisible ? panelWidth : 0 }}
                         aria-hidden={!explorerVisible}

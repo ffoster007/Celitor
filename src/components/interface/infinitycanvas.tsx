@@ -11,6 +11,9 @@ export type InfinityCanvasProps = {
 	maxScale?: number;
 	initialScale?: number;
 	initialTranslate?: Point;
+	showControls?: boolean;
+	controlsClassName?: string;
+	showGrid?: boolean;
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -23,11 +26,33 @@ export default function InfinityCanvas({
 	maxScale = 4,
 	initialScale = 1,
 	initialTranslate = { x: 0, y: 0 },
+	showControls = true,
+	controlsClassName,
+	showGrid = true,
 }: InfinityCanvasProps) {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const isPanningRef = useRef(false);
 	const lastPointerRef = useRef<Point | null>(null);
 	const activePointerIdRef = useRef<number | null>(null);
+
+	const zoomBy = (deltaScale: number, center?: Point) => {
+		const el = containerRef.current;
+		if (!el) return;
+		const rect = el.getBoundingClientRect();
+		const sx = center?.x ?? rect.width / 2;
+		const sy = center?.y ?? rect.height / 2;
+
+		setView((prev) => {
+			const nextScale = clamp(prev.scale + deltaScale, minScale, maxScale);
+			if (nextScale === prev.scale) return prev;
+
+			const worldX = (sx - prev.x) / prev.scale;
+			const worldY = (sy - prev.y) / prev.scale;
+			const nextX = sx - worldX * nextScale;
+			const nextY = sy - worldY * nextScale;
+			return { x: nextX, y: nextY, scale: nextScale };
+		});
+	};
 
 	const [view, setView] = useState(() => ({
 		x: initialTranslate.x,
@@ -36,6 +61,7 @@ export default function InfinityCanvas({
 	}));
 
 	const backgroundStyle = useMemo(() => {
+		if (!showGrid) return undefined;
 		const minor = 24;
 		const major = 120;
 		const minorAlpha = 0.06;
@@ -52,7 +78,7 @@ export default function InfinityCanvas({
 			backgroundSize: `${major}px ${major}px, ${major}px ${major}px, ${minor}px ${minor}px, ${minor}px ${minor}px`,
 			backgroundPosition: `${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px`,
 		} as React.CSSProperties;
-	}, [view.x, view.y]);
+	}, [showGrid, view.x, view.y]);
 
 	return (
 		<div
@@ -117,7 +143,28 @@ export default function InfinityCanvas({
 				});
 			}}
 		>
-			<div className="absolute inset-0" style={backgroundStyle} />
+			{showGrid && <div className="absolute inset-0" style={backgroundStyle} />}
+
+			{showControls && (
+				<div className={`absolute right-4 top-4 z-10 flex flex-col gap-2 ${controlsClassName ?? ""}`.trim()}>
+					<button
+						type="button"
+						className="h-9 w-9 rounded-md border border-white/20 bg-black/60 text-lg text-white shadow-sm transition hover:bg-white/10"
+						onClick={() => zoomBy(0.2)}
+						aria-label="Zoom in"
+					>
+						+
+					</button>
+					<button
+						type="button"
+						className="h-9 w-9 rounded-md border border-white/20 bg-black/60 text-lg text-white shadow-sm transition hover:bg-white/10"
+						onClick={() => zoomBy(-0.2)}
+						aria-label="Zoom out"
+					>
+						-
+					</button>
+				</div>
+			)}
 
 			<div
 				className="absolute inset-0"

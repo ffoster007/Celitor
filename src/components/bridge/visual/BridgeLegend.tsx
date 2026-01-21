@@ -10,7 +10,7 @@ export const BridgeLegend: React.FC = () => {
   const typeList: DependencyType[] = ["component", "import", "type", "style", "api", "config"];
 
   return (
-    <div className="absolute top-4 right-4 rounded-2xl border border-slate-800/80 bg-slate-950/60 p-4">
+    <div className="absolute top-4 right-4 border border-white/80 bg-[#000000] p-4">
       <h3 className="text-sm font-semibold text-slate-100 mb-3">Legend</h3>
 
       {/* Importance levels */}

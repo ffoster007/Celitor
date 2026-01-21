@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { X, Loader2, AlertCircle, Box, FileCode } from "lucide-react";
 import type { BridgeData, BridgeNode, DependencyImportance } from "@/types/bridge";
 import {
@@ -17,6 +17,7 @@ interface BridgeVisualizationProps {
   isLoading?: boolean;
   error?: string | null;
   onClose: () => void;
+  onOpenFile: (path: string) => void;
 }
 
 export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
@@ -24,9 +25,39 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
   isLoading = false,
   error = null,
   onClose,
+  onOpenFile,
 }) => {
   const [selectedNode, setSelectedNode] = React.useState<BridgeNode | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = React.useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isPanningRef = useRef(false);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
+
+  const [view, setView] = useState(() => ({ x: 0, y: 0, scale: 1 }));
+
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+  const minScale = 0.2;
+  const maxScale = 4;
+
+  const zoomBy = (deltaScale: number, center?: { x: number; y: number }) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const sx = center?.x ?? rect.width / 2;
+    const sy = center?.y ?? rect.height / 2;
+
+    setView((prev) => {
+      const nextScale = clamp(prev.scale + deltaScale, minScale, maxScale);
+      if (nextScale === prev.scale) return prev;
+
+      const worldX = (sx - prev.x) / prev.scale;
+      const worldY = (sy - prev.y) / prev.scale;
+      const nextX = sx - worldX * nextScale;
+      const nextY = sy - worldY * nextScale;
+      return { x: nextX, y: nextY, scale: nextScale };
+    });
+  };
 
   const stage = useMemo(() => {
     if (!data) return null;
@@ -53,6 +84,24 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
 
     return { width, height, positionsById };
   }, [data]);
+
+  const gridStyle = useMemo(() => {
+    const minor = 24;
+    const major = 120;
+    const minorAlpha = 0.06;
+    const majorAlpha = 0.12;
+    return {
+      backgroundImage: [
+        `linear-gradient(rgba(255,255,255,${majorAlpha}) 1px, transparent 1px)`,
+        `linear-gradient(90deg, rgba(255,255,255,${majorAlpha}) 1px, transparent 1px)`,
+        `linear-gradient(rgba(255,255,255,${minorAlpha}) 1px, transparent 1px)`,
+        `linear-gradient(90deg, rgba(255,255,255,${minorAlpha}) 1px, transparent 1px)`,
+      ].join(", "),
+      backgroundSize: `${major}px ${major}px, ${major}px ${major}px, ${minor}px ${minor}px, ${minor}px ${minor}px`,
+      backgroundPosition: `${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px, ${view.x}px ${view.y}px`,
+      opacity: 0.06,
+    } as React.CSSProperties;
+  }, [view.x, view.y]);
 
   if (isLoading) {
     return (
@@ -111,16 +160,22 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
   const sourceNode = data.nodes.find((n) => n.nodeType === "source");
   const dependencyNodes = data.nodes.filter((n) => n.nodeType === "dependency");
 
+  const handleNodeSelect = (node: BridgeNode) => {
+    setSelectedNode(node);
+    onOpenFile(node.path);
+  };
+
   return (
     <div className="absolute inset-0 z-50 overflow-hidden bg-[#050914]">
-      <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(rgba(148,163,184,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.35)_1px,transparent_1px)] [background-size:72px_72px]" />
+      <div className="absolute inset-0" style={gridStyle} />
 
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-20 rounded-xl border border-slate-800/80 bg-slate-950/50 p-2 text-slate-200 transition-colors hover:bg-slate-900/60 cursor-pointer"
-      >
-        <X className="h-5 w-5 text-slate-300" />
-      </button>
+        <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-20 cursor-pointer border border-red-800/80 bg-red-950/50 p-2 text-red-200 transition-colors hover:bg-red-900/60"
+        >
+        <X className="h-5 w-5 text-red-300" />
+        </button>
+
 
       <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2 rounded-2xl border border-slate-800/80 bg-slate-950/55 px-4 py-2">
         <div className="flex items-center gap-3">
@@ -135,8 +190,73 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
       </div>
 
       {stage && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center p-6">
-          <div className="relative" style={{ width: stage.width, height: stage.height }}>
+        <div
+          ref={containerRef}
+          className="absolute inset-0 z-10 select-none"
+          style={{ touchAction: "none" }}
+          onPointerDown={(e) => {
+            if (e.button !== 0) return;
+            const target = e.target as HTMLElement | null;
+            if (target?.closest("[data-bridge-node],[data-bridge-control]")) return;
+            isPanningRef.current = true;
+            activePointerIdRef.current = e.pointerId;
+            lastPointerRef.current = { x: e.clientX, y: e.clientY };
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            if (!isPanningRef.current) return;
+            if (activePointerIdRef.current !== e.pointerId) return;
+            const last = lastPointerRef.current;
+            if (!last) return;
+
+            const dx = e.clientX - last.x;
+            const dy = e.clientY - last.y;
+            lastPointerRef.current = { x: e.clientX, y: e.clientY };
+            setView((prev) => ({ ...prev, x: prev.x + dx, y: prev.y + dy }));
+          }}
+          onPointerUp={(e) => {
+            if (activePointerIdRef.current === e.pointerId) {
+              isPanningRef.current = false;
+              activePointerIdRef.current = null;
+              lastPointerRef.current = null;
+            }
+          }}
+          onPointerCancel={() => {
+            isPanningRef.current = false;
+            activePointerIdRef.current = null;
+            lastPointerRef.current = null;
+          }}
+          onWheel={(e) => {
+            e.preventDefault();
+            const el = containerRef.current;
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+
+            setView((prev) => {
+              const zoomIntensity = 0.0015;
+              const factor = Math.exp(-e.deltaY * zoomIntensity);
+              const nextScale = clamp(prev.scale * factor, minScale, maxScale);
+              if (nextScale === prev.scale) return prev;
+
+              const worldX = (sx - prev.x) / prev.scale;
+              const worldY = (sy - prev.y) / prev.scale;
+              const nextX = sx - worldX * nextScale;
+              const nextY = sy - worldY * nextScale;
+              return { x: nextX, y: nextY, scale: nextScale };
+            });
+          }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`,
+              transformOrigin: "0 0",
+            }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <div className="relative" style={{ width: stage.width, height: stage.height }}>
             {/* Lane headers */}
             <div className="pointer-events-none absolute left-0 right-0 top-2">
               {(["critical", "high", "medium", "low"] as DependencyImportance[]).map((lvl) => {
@@ -225,7 +345,7 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
                 node={sourceNode}
                 position={stage.positionsById.get(sourceNode.id)!}
                 isSource
-                onClick={setSelectedNode}
+                onClick={handleNodeSelect}
                 onHover={setHoveredNodeId}
                 isSelected={selectedNode?.id === sourceNode.id}
               />
@@ -239,12 +359,35 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
                   key={node.id}
                   node={node}
                   position={pos}
-                  onClick={setSelectedNode}
+                  onClick={handleNodeSelect}
                   onHover={setHoveredNodeId}
                   isSelected={selectedNode?.id === node.id}
                 />
               );
             })}
+              </div>
+            </div>
+          </div>
+
+          <div className="pointer-events-auto absolute right-4 bottom-4 z-20 flex flex-col gap-2">
+            <button
+              type="button"
+              className="h-9 w-9 rounded-md border border-white/20 bg-black/60 text-lg text-white shadow-sm transition hover:bg-white/10"
+              data-bridge-control
+              onClick={() => zoomBy(0.2)}
+              aria-label="Zoom in"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="h-9 w-9 rounded-md border border-white/20 bg-black/60 text-lg text-white shadow-sm transition hover:bg-white/10"
+              data-bridge-control
+              onClick={() => zoomBy(-0.2)}
+              aria-label="Zoom out"
+            >
+              -
+            </button>
           </div>
         </div>
       )}

@@ -43,6 +43,7 @@ export const BridgeNodeComponent: React.FC<BridgeNodeComponentProps> = ({
 
   return (
     <div
+      data-bridge-node
       className={`
         absolute flex flex-col items-start justify-between
         cursor-pointer select-none

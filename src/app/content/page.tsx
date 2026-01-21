@@ -127,6 +127,7 @@ const ContentPage = () => {
 
     const handleFileSelect = (path: string) => {
         setActiveFilePath(path);
+        setExplorerOverride(true);
     };
 
     const handleBackToExplorer = () => {
@@ -297,6 +298,7 @@ const ContentPage = () => {
                             isLoading={bridgeLoading}
                             error={bridgeError}
                             onClose={handleCloseBridge}
+                            onOpenFile={handleFileSelect}
                         />
                     )}
                 </main>

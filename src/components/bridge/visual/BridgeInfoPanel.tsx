@@ -22,7 +22,7 @@ export const BridgeInfoPanel: React.FC<BridgeInfoPanelProps> = ({
   const impactLabel = getImpactLabel(selectedNode.importance);
 
   return (
-    <div className="absolute bottom-4 left-4 right-4 max-w-md rounded-2xl border border-slate-800/80 bg-slate-950/60 p-4">
+    <div className="absolute bottom-4 left-4 right-4 max-w-md border rounded-2xl border-white/80 bg-[#000000] p-4">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           {getFileIcon(selectedNode.extension, "h-6 w-6")}

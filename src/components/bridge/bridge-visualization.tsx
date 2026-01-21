@@ -17,6 +17,7 @@ interface BridgeVisualizationProps {
   isLoading?: boolean;
   error?: string | null;
   onClose: () => void;
+  onOpenFile: (path: string) => void;
 }
 
 export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
@@ -24,6 +25,7 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
   isLoading = false,
   error = null,
   onClose,
+  onOpenFile,
 }) => {
   const [selectedNode, setSelectedNode] = React.useState<BridgeNode | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = React.useState<string | null>(null);
@@ -158,16 +160,22 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
   const sourceNode = data.nodes.find((n) => n.nodeType === "source");
   const dependencyNodes = data.nodes.filter((n) => n.nodeType === "dependency");
 
+  const handleNodeSelect = (node: BridgeNode) => {
+    setSelectedNode(node);
+    onOpenFile(node.path);
+  };
+
   return (
     <div className="absolute inset-0 z-50 overflow-hidden bg-[#050914]">
       <div className="absolute inset-0" style={gridStyle} />
 
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-20 rounded-xl border border-slate-800/80 bg-slate-950/50 p-2 text-slate-200 transition-colors hover:bg-slate-900/60 cursor-pointer"
-      >
-        <X className="h-5 w-5 text-slate-300" />
-      </button>
+        <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-20 cursor-pointer border border-red-800/80 bg-red-950/50 p-2 text-red-200 transition-colors hover:bg-red-900/60"
+        >
+        <X className="h-5 w-5 text-red-300" />
+        </button>
+
 
       <div className="absolute top-4 left-1/2 z-20 -translate-x-1/2 rounded-2xl border border-slate-800/80 bg-slate-950/55 px-4 py-2">
         <div className="flex items-center gap-3">
@@ -337,7 +345,7 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
                 node={sourceNode}
                 position={stage.positionsById.get(sourceNode.id)!}
                 isSource
-                onClick={setSelectedNode}
+                onClick={handleNodeSelect}
                 onHover={setHoveredNodeId}
                 isSelected={selectedNode?.id === sourceNode.id}
               />
@@ -351,7 +359,7 @@ export const BridgeVisualization: React.FC<BridgeVisualizationProps> = ({
                   key={node.id}
                   node={node}
                   position={pos}
-                  onClick={setSelectedNode}
+                  onClick={handleNodeSelect}
                   onHover={setHoveredNodeId}
                   isSelected={selectedNode?.id === node.id}
                 />

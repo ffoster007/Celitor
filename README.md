@@ -4,7 +4,13 @@
   </a>
 </p>
 
-Bookmark tool, repository analysis and management.
+## Bookmark tool, repository analysis and management.
+
+<p align="center">
+  <a href="#" target="_blank" rel="noopener">
+    <img src="./public/banner.jpg" alt="Calcus_Logo" />
+  </a>
+</p>
 
 ## Getting Started
 First, run the development server:

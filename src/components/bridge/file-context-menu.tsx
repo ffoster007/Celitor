@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Network, FileCode } from "lucide-react";
+import { Network, FileCode, Bookmark } from "lucide-react";
 import type { FileContextMenuState } from "@/types/bridge";
 
 interface FileContextMenuProps {
@@ -80,6 +80,12 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
     onClose();
   };
 
+  const handleBookmark = () => {
+    // Placeholder for bookmark functionality
+    console.log(`Bookmarking file: ${state.filePath}`);
+    onClose();
+  }
+
   const handleViewFile = () => {
     onViewFile?.(state.filePath);
     onClose();
@@ -108,7 +114,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         {isAnalyzable && (
           <button
             onClick={handleBridge}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-blue-600/30 hover:text-blue-200 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-blue-600/30 hover:text-blue-200 cursor-pointer"
           >
             <Network className="h-4 w-4 text-blue-400" />
             <span>Bridge</span>
@@ -116,11 +122,26 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
           </button>
         )}
 
+        {/* Bookmark option */}
+        { Bookmark && (
+            <button
+            onClick={handleBookmark}
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-yellow-600/30 hover:text-yellow-200 cursor-pointer"
+          >
+            <Bookmark className="h-4 w-4 text-yellow-400" />
+            <span>Bookmark</span>       
+
+            </button>
+        )
+
+        }
+
+
         {/* View file */}
         {onViewFile && (
           <button
             onClick={handleViewFile}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-gray-700 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-gray-700 cursor-pointer"
           >
             <FileCode className="h-4 w-4 text-gray-400" />
             <span>View File</span>

@@ -78,7 +78,7 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
           </div>
           <button
             onClick={onClose}
-            className="rounded p-1 text-gray-400 transition hover:bg-gray-800 hover:text-white"
+            className="rounded p-1 text-gray-400 transition hover:bg-gray-800 hover:text-white cursor-pointer"
           >
             <svg
               className="h-5 w-5"
@@ -131,7 +131,7 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
                 <li key={repo.id}>
                   <button
                     onClick={() => onSelectRepo(repo)}
-                    className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-gray-800/50"
+                    className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-gray-800/50 cursor-pointer"
                   >
                     <Image
                       src={repo.owner.avatar_url}

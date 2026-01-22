@@ -10,6 +10,7 @@ interface FileContextMenuProps {
   onBridge: (filePath: string) => void;
   onViewFile?: (filePath: string) => void;
   onCopyPath?: (filePath: string) => void;
+  onBookmark?: (filePath: string, fileName: string, fileType: "file" | "dir") => void;
 }
 
 export const FileContextMenu: React.FC<FileContextMenuProps> = ({
@@ -17,6 +18,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
   onClose,
   onBridge,
   onViewFile,
+  onBookmark,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -81,8 +83,9 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
   };
 
   const handleBookmark = () => {
-    // Placeholder for bookmark functionality
-    console.log(`Bookmarking file: ${state.filePath}`);
+    // Determine if path is a directory (no extension usually indicates dir, but we rely on context)
+    const isDir = !state.fileName.includes(".") || state.filePath.endsWith("/");
+    onBookmark?.(state.filePath, state.fileName, isDir ? "dir" : "file");
     onClose();
   }
 
@@ -123,12 +126,12 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
         )}
 
         {/* Bookmark option */}
-        { Bookmark && (
+        {onBookmark && (
             <button
             onClick={handleBookmark}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-yellow-600/30 hover:text-yellow-200 cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-white hover:bg-gray-700 cursor-pointer"
           >
-            <Bookmark className="h-4 w-4 text-yellow-400" />
+            <Bookmark className="h-4 w-4 text-gray-400" />
             <span>Bookmark</span>       
 
             </button>

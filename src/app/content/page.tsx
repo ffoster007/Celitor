@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState, useSyncExternalStore, useCallback } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore, useCallback, useEffect } from "react";
 import ActivityBar from "@/components/activitybar/page";
 import Toolbar from "@/components/toolbar/page";
 import { FileExplorer, FileViewer, RepoSelector } from "@/components/explorer";
 import { BridgeVisualization } from "@/components/bridge";
 import { FileContextMenu } from "@/components/bridge/file-context-menu";
 import UsageGuide from "@/components/content/usage-guide";
+import { AlbumPage, AlbumProvider, useAlbum, BookmarkModal } from "@/components/album";
 import type { GitHubRepo } from "@/lib/github";
 import type { BridgeData, FileContextMenuState } from "@/types/bridge";
 
@@ -84,9 +85,11 @@ const ContentPage = () => {
 
     const [repoSelectorOpen, setRepoSelectorOpen] = useState(false);
     const [explorerOverride, setExplorerOverride] = useState<boolean | null>(null);
+    const [albumActive, setAlbumActive] = useState(false);
     const [activeFilePath, setActiveFilePath] = useState<string | null>(null);
     const [panelWidth, setPanelWidth] = useState(256);
     const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
+    const [highlightedPath, setHighlightedPath] = useState<string | null>(null);
 
     // Bridge system state
     const [bridgeData, setBridgeData] = useState<BridgeData | null>(null);
@@ -117,6 +120,14 @@ const ContentPage = () => {
             setRepoSelectorOpen(true);
         } else {
             setExplorerOverride(isActive);
+            if (isActive) setAlbumActive(false);
+        }
+    };
+
+    const handleAlbumToggle = (isActive: boolean) => {
+        setAlbumActive(isActive);
+        if (isActive) {
+            setExplorerOverride(false);
         }
     };
 
@@ -213,6 +224,143 @@ const ContentPage = () => {
         setBridgeLoading(false);
     }, []);
 
+    // Album item click handler
+    const handleAlbumItemClick = useCallback((path: string, type: "file" | "dir") => {
+        setHighlightedPath(path);
+        if (type === "file") {
+            setActiveFilePath(path);
+            setExplorerOverride(true);
+            setAlbumActive(false);
+        }
+    }, []);
+
+    return (
+        <AlbumProvider>
+            <ContentInner
+                selectedRepo={selectedRepo}
+                explorerVisible={explorerVisible}
+                albumActive={albumActive}
+                activeFilePath={activeFilePath}
+                panelWidth={panelWidth}
+                bridgeData={bridgeData}
+                bridgeLoading={bridgeLoading}
+                bridgeError={bridgeError}
+                contextMenu={contextMenu}
+                showRepoSelector={showRepoSelector}
+                highlightedPath={highlightedPath}
+                resizeStateRef={resizeStateRef}
+                onExplorerToggle={handleExplorerToggle}
+                onAlbumToggle={handleAlbumToggle}
+                onSelectRepo={handleSelectRepo}
+                onFileSelect={handleFileSelect}
+                onChangeRepo={handleChangeRepo}
+                onBackToExplorer={handleBackToExplorer}
+                onContextMenu={handleContextMenu}
+                onCloseContextMenu={handleCloseContextMenu}
+                onBridge={handleBridge}
+                onCloseBridge={handleCloseBridge}
+                onRepoSelectorClose={() => selectedRepo && setRepoSelectorOpen(false)}
+                onResizeStart={handleResizeStart}
+                onResizeMove={handleResizeMove}
+                onResizeEnd={handleResizeEnd}
+                onAlbumItemClick={handleAlbumItemClick}
+                setPanelWidth={setPanelWidth}
+            />
+        </AlbumProvider>
+    );
+};
+
+interface ContentInnerProps {
+    selectedRepo: GitHubRepo | null;
+    explorerVisible: boolean;
+    albumActive: boolean;
+    activeFilePath: string | null;
+    panelWidth: number;
+    bridgeData: BridgeData | null;
+    bridgeLoading: boolean;
+    bridgeError: string | null;
+    contextMenu: FileContextMenuState;
+    showRepoSelector: boolean;
+    highlightedPath: string | null;
+    resizeStateRef: React.MutableRefObject<{ startX: number; startWidth: number } | null>;
+    onExplorerToggle: (isActive: boolean) => void;
+    onAlbumToggle: (isActive: boolean) => void;
+    onSelectRepo: (repo: GitHubRepo) => void;
+    onFileSelect: (path: string) => void;
+    onChangeRepo: () => void;
+    onBackToExplorer: () => void;
+    onContextMenu: (event: React.MouseEvent, path: string, name: string) => void;
+    onCloseContextMenu: () => void;
+    onBridge: (filePath: string) => void;
+    onCloseBridge: () => void;
+    onRepoSelectorClose: () => void;
+    onResizeStart: (event: React.PointerEvent<HTMLDivElement>) => void;
+    onResizeMove: (event: React.PointerEvent<HTMLDivElement>) => void;
+    onResizeEnd: (event: React.PointerEvent<HTMLDivElement>) => void;
+    onAlbumItemClick: (path: string, type: "file" | "dir") => void;
+    setPanelWidth: (width: number) => void;
+}
+
+const ContentInner: React.FC<ContentInnerProps> = ({
+    selectedRepo,
+    explorerVisible,
+    albumActive,
+    activeFilePath,
+    panelWidth,
+    bridgeData,
+    bridgeLoading,
+    bridgeError,
+    contextMenu,
+    showRepoSelector,
+    highlightedPath,
+    onExplorerToggle,
+    onAlbumToggle,
+    onSelectRepo,
+    onFileSelect,
+    onChangeRepo,
+    onBackToExplorer,
+    onContextMenu,
+    onCloseContextMenu,
+    onBridge,
+    onCloseBridge,
+    onRepoSelectorClose,
+    onResizeStart,
+    onResizeMove,
+    onResizeEnd,
+    onAlbumItemClick,
+}) => {
+    const { state, fetchAlbums, openBookmarkModal, closeBookmarkModal, addBookmark, createAlbum, getBookmarkedPaths } = useAlbum();
+    const [bookmarkModalKey, setBookmarkModalKey] = useState(0);
+
+    // Fetch albums when repo changes
+    useEffect(() => {
+        if (selectedRepo) {
+            fetchAlbums(selectedRepo.owner.login, selectedRepo.name);
+        }
+    }, [selectedRepo, fetchAlbums]);
+
+    const bookmarkedPaths = getBookmarkedPaths();
+
+    const handleBookmark = useCallback((filePath: string, fileName: string, fileType: "file" | "dir") => {
+        setBookmarkModalKey(k => k + 1);
+        openBookmarkModal(filePath, fileName, fileType);
+    }, [openBookmarkModal]);
+
+    const handleBookmarkSave = useCallback(async (albumId: string) => {
+        await addBookmark(
+            albumId,
+            state.bookmarkModal.filePath,
+            state.bookmarkModal.fileName,
+            state.bookmarkModal.fileType
+        );
+        closeBookmarkModal();
+    }, [addBookmark, state.bookmarkModal, closeBookmarkModal]);
+
+    const handleCreateAlbumForBookmark = useCallback(async (name: string) => {
+        if (!selectedRepo) return null;
+        return await createAlbum(name, selectedRepo.owner.login, selectedRepo.name);
+    }, [createAlbum, selectedRepo]);
+
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-black text-white">
             <div data-celitor-view-hide>
@@ -221,13 +369,15 @@ const ContentPage = () => {
             <div className="flex min-h-0 flex-1 overflow-hidden">
                 <div data-celitor-view-hide className="h-full shrink-0">
                     <ActivityBar 
-                        onExplorerToggle={handleExplorerToggle}
+                        onExplorerToggle={onExplorerToggle}
+                        onAlbumToggle={onAlbumToggle}
                         explorerActive={explorerVisible}
+                        albumActive={albumActive}
                     />
                 </div>
                 
                 {/* Explorer Panel */}
-                {selectedRepo && (
+                {selectedRepo && !albumActive && (
                     <div
                         data-celitor-view-hide
                         className={
@@ -250,9 +400,11 @@ const ContentPage = () => {
                                 owner={selectedRepo.owner.login}
                                 repo={selectedRepo.name}
                                 repoFullName={selectedRepo.full_name}
-                                onFileSelect={handleFileSelect}
-                                onChangeRepo={handleChangeRepo}
-                                onContextMenu={handleContextMenu}
+                                onFileSelect={onFileSelect}
+                                onChangeRepo={onChangeRepo}
+                                onContextMenu={onContextMenu}
+                                bookmarkedPaths={bookmarkedPaths}
+                                highlightedPath={highlightedPath}
                             />
                         </div>
 
@@ -268,7 +420,7 @@ const ContentPage = () => {
                                     owner={selectedRepo.owner.login}
                                     repo={selectedRepo.name}
                                     path={activeFilePath}
-                                    onBack={handleBackToExplorer}
+                                    onBack={onBackToExplorer}
                                 />
                             )}
                         </div>
@@ -278,10 +430,10 @@ const ContentPage = () => {
                             <div
                                 role="separator"
                                 aria-orientation="vertical"
-                                onPointerDown={handleResizeStart}
-                                onPointerMove={handleResizeMove}
-                                onPointerUp={handleResizeEnd}
-                                onPointerCancel={handleResizeEnd}
+                                onPointerDown={onResizeStart}
+                                onPointerMove={onResizeMove}
+                                onPointerUp={onResizeEnd}
+                                onPointerCancel={onResizeEnd}
                                 className="absolute right-0 top-0 h-full w-1 cursor-col-resize touch-none hover:bg-slate-700/40"
                             />
                         )}
@@ -289,7 +441,18 @@ const ContentPage = () => {
                 )}
                 
                 <main data-celitor-view-content className="flex min-h-0 flex-1 relative">
-                    <UsageGuide />
+                    {/* Album View */}
+                    {albumActive && selectedRepo ? (
+                        <div className="w-full h-full">
+                            <AlbumPage
+                                repoOwner={selectedRepo.owner.login}
+                                repoName={selectedRepo.name}
+                                onItemClick={onAlbumItemClick}
+                            />
+                        </div>
+                    ) : (
+                        <UsageGuide />
+                    )}
                     
                     {/* Bridge Visualization Overlay */}
                     {(bridgeData || bridgeLoading || bridgeError) && (
@@ -297,8 +460,8 @@ const ContentPage = () => {
                             data={bridgeData}
                             isLoading={bridgeLoading}
                             error={bridgeError}
-                            onClose={handleCloseBridge}
-                            onOpenFile={handleFileSelect}
+                            onClose={onCloseBridge}
+                            onOpenFile={onFileSelect}
                         />
                     )}
                 </main>
@@ -308,12 +471,8 @@ const ContentPage = () => {
             {showRepoSelector && (
                 <div data-celitor-view-hide>
                     <RepoSelector
-                        onSelectRepo={handleSelectRepo}
-                        onClose={() => {
-                            if (selectedRepo) {
-                                setRepoSelectorOpen(false);
-                            }
-                        }}
+                        onSelectRepo={onSelectRepo}
+                        onClose={onRepoSelectorClose}
                     />
                 </div>
             )}
@@ -321,9 +480,23 @@ const ContentPage = () => {
             {/* File Context Menu */}
             <FileContextMenu
                 state={contextMenu}
-                onClose={handleCloseContextMenu}
-                onBridge={handleBridge}
-                onViewFile={handleFileSelect}
+                onClose={onCloseContextMenu}
+                onBridge={onBridge}
+                onViewFile={onFileSelect}
+                onBookmark={handleBookmark}
+            />
+
+            {/* Bookmark Modal */}
+            <BookmarkModal
+                key={bookmarkModalKey}
+                isOpen={state.bookmarkModal.isOpen}
+                filePath={state.bookmarkModal.filePath}
+                fileName={state.bookmarkModal.fileName}
+                fileType={state.bookmarkModal.fileType}
+                albums={state.albums}
+                onClose={closeBookmarkModal}
+                onSave={handleBookmarkSave}
+                onCreate={handleCreateAlbumForBookmark}
             />
         </div>
     );

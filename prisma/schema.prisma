@@ -16,6 +16,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
+  albums        Album[]
 }
 
 model Post {
@@ -69,4 +70,56 @@ model AccessLog {
   id        String   @id @default(cuid())
   timeStamp DateTime @default(now())
   ipAddress String
+}
+
+// Album System
+model Album {
+  id          String      @id @default(cuid())
+  name        String
+  repoOwner   String
+  repoName    String
+  note        String?     @db.Text
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       AlbumItem[]
+  groups      AlbumGroup[]
+
+  @@unique([userId, repoOwner, repoName, name])
+  @@index([repoOwner, repoName])
+}
+
+model AlbumGroup {
+  id        String      @id @default(cuid())
+  name      String
+  note      String?     @db.Text
+  order     Int         @default(0)
+  albumId   String
+  album     Album       @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  items     AlbumItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([albumId])
+}
+
+model AlbumItem {
+  id        String      @id @default(cuid())
+  path      String
+  name      String
+  type      String      // "file" or "dir"
+  note      String?     @db.Text
+  order     Int         @default(0)
+  albumId   String
+  album     Album       @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  groupId   String?
+  group     AlbumGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([albumId, path])
+  @@index([albumId])
+  @@index([groupId])
 }

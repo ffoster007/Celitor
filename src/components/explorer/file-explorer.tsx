@@ -19,6 +19,8 @@ interface FileTreeItemProps {
   level: number;
   onFileSelect?: (path: string) => void;
   onContextMenu?: (event: React.MouseEvent, path: string, name: string) => void;
+  bookmarkedPaths?: Set<string>;
+  highlightedPath?: string | null;
 }
 
 const FileTreeItem = ({
@@ -28,11 +30,16 @@ const FileTreeItem = ({
   level,
   onFileSelect,
   onContextMenu,
+  bookmarkedPaths,
+  highlightedPath,
 }: FileTreeItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [children, setChildren] = useState<GitHubContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
+
+  const isBookmarked = bookmarkedPaths?.has(item.path);
+  const isHighlighted = highlightedPath === item.path;
 
   const handleToggle = useCallback(async () => {
     if (item.type === "file") {
@@ -87,7 +94,9 @@ const FileTreeItem = ({
         onClick={handleToggle}
         onContextMenu={handleRightClick}
         data-celitor-allow-context-menu
-        className="group flex w-full items-center gap-1 py-0.5 pr-2 text-left text-sm text-gray-300 hover:bg-gray-900/50"
+        className={`group flex w-full items-center gap-1 py-0.5 pr-2 text-left text-sm text-gray-300 hover:bg-gray-900/50 ${
+          isHighlighted ? "bg-white/20 ring-1 ring-white/30" : ""
+        } ${isBookmarked && !isHighlighted ? "bg-gray-800/50" : ""}`}
         style={{ paddingLeft: `${level * 12 + 4}px` }}
       >
         {/* Chevron for folders */}
@@ -130,6 +139,8 @@ const FileTreeItem = ({
               level={level + 1}
               onFileSelect={onFileSelect}
               onContextMenu={onContextMenu}
+              bookmarkedPaths={bookmarkedPaths}
+              highlightedPath={highlightedPath}
             />
           ))}
         </div>
@@ -145,6 +156,8 @@ interface FileExplorerProps {
   onFileSelect?: (path: string) => void;
   onChangeRepo?: () => void;
   onContextMenu?: (event: React.MouseEvent, path: string, name: string) => void;
+  bookmarkedPaths?: Set<string>;
+  highlightedPath?: string | null;
 }
 
 const FileExplorer = ({
@@ -154,6 +167,8 @@ const FileExplorer = ({
   onFileSelect,
   onChangeRepo,
   onContextMenu,
+  bookmarkedPaths,
+  highlightedPath,
 }: FileExplorerProps) => {
   const [contents, setContents] = useState<GitHubContent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -275,6 +290,8 @@ const FileExplorer = ({
               level={0}
               onFileSelect={onFileSelect}
               onContextMenu={onContextMenu}
+              bookmarkedPaths={bookmarkedPaths}
+              highlightedPath={highlightedPath}
             />
           ))
         )}

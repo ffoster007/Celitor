@@ -21,6 +21,7 @@ export const AlbumItemCard: React.FC<AlbumItemCardProps> = ({
   return (
     <div
       draggable
+      data-celitor-allow-context-menu
       onClick={(e) => onSelect(item.id, e.ctrlKey || e.metaKey)}
       onDoubleClick={() => onDoubleClick(item)}
       onContextMenu={(e) => onContextMenu(e, item)}
@@ -68,6 +69,7 @@ export const AlbumGroupCard: React.FC<AlbumGroupCardProps> = ({
       onDrop={(e) => onDropToGroup(e, group.id)}
     >
       <div
+        data-celitor-allow-context-menu
         className="flex items-center justify-between px-3 py-2 border-b border-gray-800 cursor-pointer"
         onClick={() => setCollapsed(!collapsed)}
         onContextMenu={(e) => onGroupContextMenu(e, group)}

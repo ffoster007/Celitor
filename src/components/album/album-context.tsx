@@ -27,7 +27,8 @@ type AlbumAction =
   | { type: "SET_CLIPBOARD"; payload: { items: AlbumItem[]; action: "copy" | "cut" } | null }
   | { type: "UPDATE_ITEM"; payload: { albumId: string; item: AlbumItem } }
   | { type: "DELETE_ITEM"; payload: { albumId: string; itemId: string } }
-  | { type: "ADD_GROUP"; payload: { albumId: string; group: AlbumGroup } }
+  | { type: "REORDER_ITEM"; payload: { albumId: string; draggedId: string; targetId: string } }
+  | { type: "ADD_GROUP"; payload: { albumId: string; group: AlbumGroup; itemIds?: string[] } }
   | { type: "UPDATE_GROUP"; payload: { albumId: string; group: AlbumGroup } }
   | { type: "DELETE_GROUP"; payload: { albumId: string; groupId: string } };
 
@@ -90,10 +91,31 @@ function albumReducer(state: AlbumState, action: AlbumAction): AlbumState {
       });
       return { ...state, albums };
     }
-    case "ADD_GROUP": {
+    case "REORDER_ITEM": {
+      const { albumId, draggedId, targetId } = action.payload;
       const albums = state.albums.map((album) => {
-        if (album.id !== action.payload.albumId) return album;
-        return { ...album, groups: [...album.groups, action.payload.group] };
+        if (album.id !== albumId) return album;
+        const items = [...album.items];
+        const draggedIdx = items.findIndex((i) => i.id === draggedId);
+        const targetIdx = items.findIndex((i) => i.id === targetId);
+        if (draggedIdx === -1 || targetIdx === -1) return album;
+        const [dragged] = items.splice(draggedIdx, 1);
+        items.splice(targetIdx, 0, dragged);
+        return { ...album, items };
+      });
+      return { ...state, albums };
+    }
+    case "ADD_GROUP": {
+      const { albumId, group, itemIds } = action.payload;
+      const albums = state.albums.map((album) => {
+        if (album.id !== albumId) return album;
+        // Update items to set groupId if itemIds provided
+        const updatedItems = itemIds?.length 
+          ? album.items.map(item => 
+              itemIds.includes(item.id) ? { ...item, groupId: group.id } : item
+            )
+          : album.items;
+        return { ...album, groups: [...album.groups, group], items: updatedItems };
       });
       return { ...state, albums };
     }
@@ -131,12 +153,13 @@ interface AlbumContextValue {
   addBookmark: (albumId: string, path: string, name: string, type: "file" | "dir") => Promise<void>;
   updateItem: (itemId: string, data: { note?: string; order?: number; groupId?: string | null }) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
+  reorderItem: (albumId: string, draggedId: string, targetId: string) => void;
   createGroup: (albumId: string, name: string, itemIds?: string[]) => Promise<void>;
   updateGroup: (groupId: string, data: { name?: string; note?: string; order?: number }) => Promise<void>;
   deleteGroup: (groupId: string) => Promise<void>;
   setClipboard: (items: AlbumItem[], action: "copy" | "cut") => void;
   pasteItems: (albumId: string) => Promise<void>;
-  getBookmarkedPaths: () => Set<string>;
+  getBookmarkedPaths: (albumId?: string) => Set<string>;
 }
 
 const AlbumContext = createContext<AlbumContextValue | null>(null);
@@ -242,6 +265,26 @@ export function AlbumProvider({ children }: { children: ReactNode }) {
     }
   }, [state.albums]);
 
+  // Instant reorder for drag-drop (optimistic update)
+  const reorderItem = useCallback((albumId: string, draggedId: string, targetId: string) => {
+    if (draggedId === targetId) return;
+    // Optimistic update - instant UI change
+    dispatch({ type: "REORDER_ITEM", payload: { albumId, draggedId, targetId } });
+    // Persist to backend (fire and forget)
+    const album = state.albums.find(a => a.id === albumId);
+    if (album) {
+      const items = [...album.items];
+      const targetIdx = items.findIndex(i => i.id === targetId);
+      if (targetIdx !== -1) {
+        fetch("/api/album/item", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itemId: draggedId, order: targetIdx }),
+        });
+      }
+    }
+  }, [state.albums]);
+
   const createGroup = useCallback(async (albumId: string, name: string, itemIds?: string[]) => {
     const res = await fetch("/api/album/group", {
       method: "POST",
@@ -249,7 +292,7 @@ export function AlbumProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ albumId, name, itemIds }),
     });
     const json = await res.json();
-    if (json.success) dispatch({ type: "ADD_GROUP", payload: { albumId, group: json.data } });
+    if (json.success) dispatch({ type: "ADD_GROUP", payload: { albumId, group: json.data, itemIds } });
   }, []);
 
   const updateGroup = useCallback(async (groupId: string, data: { name?: string; note?: string; order?: number }) => {
@@ -289,9 +332,12 @@ export function AlbumProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_CLIPBOARD", payload: null });
   }, [state.clipboard, addBookmark, deleteItem]);
 
-  const getBookmarkedPaths = useCallback(() => {
+  const getBookmarkedPaths = useCallback((albumId?: string) => {
     const paths = new Set<string>();
-    for (const album of state.albums) {
+    const albumsToCheck = albumId 
+      ? state.albums.filter(a => a.id === albumId)
+      : state.albums;
+    for (const album of albumsToCheck) {
       for (const item of album.items) paths.add(item.path);
     }
     return paths;
@@ -301,7 +347,7 @@ export function AlbumProvider({ children }: { children: ReactNode }) {
     <AlbumContext.Provider
       value={{
         state, fetchAlbums, createAlbum, updateAlbum, deleteAlbum, selectAlbum,
-        openBookmarkModal, closeBookmarkModal, addBookmark, updateItem, deleteItem,
+        openBookmarkModal, closeBookmarkModal, addBookmark, updateItem, deleteItem, reorderItem,
         createGroup, updateGroup, deleteGroup, setClipboard, pasteItems, getBookmarkedPaths,
       }}
     >

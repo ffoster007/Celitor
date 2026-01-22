@@ -126,9 +126,7 @@ const ContentPage = () => {
 
     const handleAlbumToggle = (isActive: boolean) => {
         setAlbumActive(isActive);
-        if (isActive) {
-            setExplorerOverride(false);
-        }
+        // Don't close explorer when opening album - they can work together
     };
 
     const handleChangeRepo = () => {
@@ -224,13 +222,15 @@ const ContentPage = () => {
         setBridgeLoading(false);
     }, []);
 
-    // Album item click handler
+    // Album item click handler - opens explorer panel alongside album view
     const handleAlbumItemClick = useCallback((path: string, type: "file" | "dir") => {
         setHighlightedPath(path);
+        // Show explorer panel alongside album (don't close album)
+        setExplorerOverride(true);
         if (type === "file") {
             setActiveFilePath(path);
-            setExplorerOverride(true);
-            setAlbumActive(false);
+        } else {
+            setActiveFilePath(null);
         }
     }, []);
 
@@ -339,7 +339,8 @@ const ContentInner: React.FC<ContentInnerProps> = ({
         }
     }, [selectedRepo, fetchAlbums]);
 
-    const bookmarkedPaths = getBookmarkedPaths();
+    // Only highlight bookmarked paths when user is in a specific album
+    const bookmarkedPaths = state.selectedAlbumId ? getBookmarkedPaths(state.selectedAlbumId) : new Set<string>();
 
     const handleBookmark = useCallback((filePath: string, fileName: string, fileType: "file" | "dir") => {
         setBookmarkModalKey(k => k + 1);
@@ -376,8 +377,8 @@ const ContentInner: React.FC<ContentInnerProps> = ({
                     />
                 </div>
                 
-                {/* Explorer Panel */}
-                {selectedRepo && !albumActive && (
+                {/* Explorer Panel - can show alongside Album view */}
+                {selectedRepo && (
                     <div
                         data-celitor-view-hide
                         className={

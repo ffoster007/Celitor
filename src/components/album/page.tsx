@@ -82,7 +82,7 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
     e.preventDefault();
   }, []);
 
-  const handleDropToItem = useCallback((e: React.DragEvent, targetId: string) => {
+  const handleDropToItem = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
     const draggedId = e.dataTransfer.getData("text/plain");
     if (!draggedId || draggedId === targetId || !state.selectedAlbumId || !selectedAlbum) return;
@@ -93,7 +93,7 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
     }
     // Instant reorder with optimistic update
     reorderItem(state.selectedAlbumId, draggedId, targetId);
-  }, [state.selectedAlbumId, reorderItem, selectedAlbum, updateItem]);
+  };
 
   const handleDropToGroup = useCallback(async (e: React.DragEvent, groupId: string) => {
     e.preventDefault();

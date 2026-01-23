@@ -35,12 +35,13 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (!selectedAlbum || selectedIds.size === 0) return;
+      if (!selectedAlbum) return;
       const items = selectedAlbum.items.filter((i) => selectedIds.has(i.id));
-      if ((e.ctrlKey || e.metaKey) && e.key === "c") { e.preventDefault(); setClipboard(items, "copy"); }
-      if ((e.ctrlKey || e.metaKey) && e.key === "x") { e.preventDefault(); setClipboard(items, "cut"); }
+      const hasSelection = items.length > 0;
+      if ((e.ctrlKey || e.metaKey) && e.key === "c" && hasSelection) { e.preventDefault(); setClipboard(items, "copy"); }
+      if ((e.ctrlKey || e.metaKey) && e.key === "x" && hasSelection) { e.preventDefault(); setClipboard(items, "cut"); }
       if ((e.ctrlKey || e.metaKey) && e.key === "v" && state.clipboard) { e.preventDefault(); pasteItems(selectedAlbum.id); }
-      if (e.key === "Delete") { e.preventDefault(); items.forEach((i) => deleteItem(i.id)); setSelectedIds(new Set()); }
+      if (e.key === "Delete" && hasSelection) { e.preventDefault(); items.forEach((i) => deleteItem(i.id)); setSelectedIds(new Set()); }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
@@ -74,6 +75,7 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
 
   const handleDragStart = useCallback((e: React.DragEvent, item: AlbumItem) => {
     e.dataTransfer.setData("text/plain", item.id);
+    e.dataTransfer.effectAllowed = "move";
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -83,15 +85,26 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
   const handleDropToItem = useCallback((e: React.DragEvent, targetId: string) => {
     e.preventDefault();
     const draggedId = e.dataTransfer.getData("text/plain");
-    if (draggedId === targetId || !state.selectedAlbumId) return;
+    if (!draggedId || draggedId === targetId || !state.selectedAlbumId || !selectedAlbum) return;
+    const draggedItem = selectedAlbum.items.find((i) => i.id === draggedId);
+    const targetItem = selectedAlbum.items.find((i) => i.id === targetId);
+    if (draggedItem && targetItem && draggedItem.groupId !== targetItem.groupId) {
+      updateItem(draggedId, { groupId: targetItem.groupId ?? null });
+    }
     // Instant reorder with optimistic update
     reorderItem(state.selectedAlbumId, draggedId, targetId);
-  }, [state.selectedAlbumId, reorderItem]);
+  }, [state.selectedAlbumId, reorderItem, selectedAlbum, updateItem]);
 
   const handleDropToGroup = useCallback(async (e: React.DragEvent, groupId: string) => {
     e.preventDefault();
     const draggedId = e.dataTransfer.getData("text/plain");
     if (draggedId) await updateItem(draggedId, { groupId });
+  }, [updateItem]);
+
+  const handleDropToUngrouped = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData("text/plain");
+    if (draggedId) await updateItem(draggedId, { groupId: null });
   }, [updateItem]);
 
   if (state.loading) {
@@ -159,7 +172,7 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
           ))}
 
           {/* Ungrouped items */}
-          <div className="space-y-1">
+          <div className="space-y-1" onDragOver={handleDragOver} onDrop={handleDropToUngrouped}>
             {ungroupedItems.map((item) => (
               <AlbumItemCard
                 key={item.id}

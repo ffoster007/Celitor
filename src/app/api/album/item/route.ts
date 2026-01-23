@@ -27,15 +27,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Album not found" }, { status: 404 });
     }
 
-    // Check if item already exists
-    const existing = await prisma.albumItem.findFirst({
-      where: { albumId, path },
-    });
-
-    if (existing) {
-      return NextResponse.json({ error: "Item already bookmarked" }, { status: 409 });
-    }
-
     const maxOrder = await prisma.albumItem.aggregate({
       where: { albumId },
       _max: { order: true },

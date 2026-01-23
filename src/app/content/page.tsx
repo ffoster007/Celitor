@@ -86,6 +86,7 @@ const ContentPage = () => {
     const [repoSelectorOpen, setRepoSelectorOpen] = useState(false);
     const [explorerOverride, setExplorerOverride] = useState<boolean | null>(null);
     const [albumActive, setAlbumActive] = useState(false);
+    const [showAlbumView, setShowAlbumView] = useState(false);
     const [activeFilePath, setActiveFilePath] = useState<string | null>(null);
     const [panelWidth, setPanelWidth] = useState(256);
     const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
@@ -126,6 +127,10 @@ const ContentPage = () => {
 
     const handleAlbumToggle = (isActive: boolean) => {
         setAlbumActive(isActive);
+        if (isActive) {
+            // Toggle album view when clicking album button
+            setShowAlbumView(prev => !prev);
+        }
         // Don't close explorer when opening album - they can work together
     };
 
@@ -240,6 +245,7 @@ const ContentPage = () => {
                 selectedRepo={selectedRepo}
                 explorerVisible={explorerVisible}
                 albumActive={albumActive}
+                showAlbumView={showAlbumView}
                 activeFilePath={activeFilePath}
                 panelWidth={panelWidth}
                 bridgeData={bridgeData}
@@ -274,6 +280,7 @@ interface ContentInnerProps {
     selectedRepo: GitHubRepo | null;
     explorerVisible: boolean;
     albumActive: boolean;
+    showAlbumView: boolean;
     activeFilePath: string | null;
     panelWidth: number;
     bridgeData: BridgeData | null;
@@ -305,6 +312,7 @@ const ContentInner: React.FC<ContentInnerProps> = ({
     selectedRepo,
     explorerVisible,
     albumActive,
+    showAlbumView,
     activeFilePath,
     panelWidth,
     bridgeData,
@@ -443,7 +451,7 @@ const ContentInner: React.FC<ContentInnerProps> = ({
                 
                 <main data-celitor-view-content className="flex min-h-0 flex-1 relative">
                     {/* Album View */}
-                    {albumActive && selectedRepo ? (
+                    {showAlbumView && selectedRepo ? (
                         <div className="w-full h-full">
                             <AlbumPage
                                 repoOwner={selectedRepo.owner.login}

@@ -130,14 +130,14 @@ export const ItemContextMenu: React.FC<ItemContextMenuProps> = ({
 
   return (
     <div ref={ref} className="fixed z-50 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-[140px]" style={{ left: x, top: y }}>
-      <button onClick={onCopy} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700">Copy</button>
-      <button onClick={onCut} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700">Cut</button>
+      <button onClick={onCopy} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 cursor-pointer">Copy</button>
+      <button onClick={onCut} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 cursor-pointer">Cut</button>
       <div className="border-t border-gray-700 my-1" />
-      <button onClick={onEditNote} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2">
+      <button onClick={onEditNote} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
         <Pencil className="h-3 w-3" /> Note
       </button>
       <div className="border-t border-gray-700 my-1" />
-      <button onClick={onDelete} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2">
+      <button onClick={onDelete} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
         <Trash2 className="h-3 w-3" /> Delete
       </button>
     </div>
@@ -199,8 +199,8 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ value, onSave, onCancel 
           placeholder="Write your note..."
         />
         <div className="flex justify-end gap-2 mt-3">
-          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200">Cancel</button>
-          <button onClick={() => onSave(text)} className="px-3 py-1.5 text-sm bg-white text-black rounded hover:bg-gray-200">Save</button>
+          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 cursor-pointer">Cancel</button>
+          <button onClick={() => onSave(text)} className="px-3 py-1.5 text-sm bg-white text-black rounded hover:bg-gray-200 cursor-pointer">Save</button>
         </div>
       </div>
     </div>
@@ -228,8 +228,8 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({ onConfirm, o
           autoFocus
         />
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200">Cancel</button>
-          <button onClick={() => name && onConfirm(name)} disabled={!name} className="px-3 py-1.5 text-sm bg-white text-black rounded hover:bg-gray-200 disabled:opacity-50">Create</button>
+          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 cursor-pointer">Cancel</button>
+          <button onClick={() => name && onConfirm(name)} disabled={!name} className="px-3 py-1.5 text-sm bg-white text-black rounded hover:bg-gray-200 disabled:opacity-50 cursor-pointer">Create</button>
         </div>
       </div>
     </div>

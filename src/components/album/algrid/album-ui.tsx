@@ -28,7 +28,7 @@ export const AlbumList: React.FC<AlbumListProps> = ({ albums, onSelect, onCreate
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
         <h2 className="text-sm font-semibold text-gray-200">Albums</h2>
-        <button onClick={onCreate} className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-white text-black rounded hover:bg-gray-200">
+        <button onClick={onCreate} className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-white text-black hover:bg-gray-200 cursor-pointer">
           <Plus className="h-3 w-3" /> New Album
         </button>
       </div>
@@ -57,10 +57,10 @@ export const AlbumList: React.FC<AlbumListProps> = ({ albums, onSelect, onCreate
                   </button>
                   {menuOpen === album.id && (
                     <div ref={menuRef} className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-[120px] z-10">
-                      <button onClick={(e) => { e.stopPropagation(); onRename(album); setMenuOpen(null); }} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); onRename(album); setMenuOpen(null); }} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
                         <Pencil className="h-3 w-3" /> Rename
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); onDelete(album); setMenuOpen(null); }} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); onDelete(album); setMenuOpen(null); }} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
                         <Trash2 className="h-3 w-3" /> Delete
                       </button>
                     </div>
@@ -116,8 +116,8 @@ export const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ onConfirm, o
           onKeyDown={(e) => e.key === "Enter" && name && onConfirm(name)}
         />
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200">Cancel</button>
-          <button onClick={() => name && onConfirm(name)} disabled={!name} className="px-3 py-1.5 text-sm bg-white text-black rounded hover:bg-gray-200 disabled:opacity-50">Create</button>
+          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 cursor-pointer">Cancel</button>
+          <button onClick={() => name && onConfirm(name)} disabled={!name} className="px-3 py-1.5 text-sm bg-white text-black rounded hover:bg-gray-200 disabled:opacity-50 cursor-pointer">Create</button>
         </div>
       </div>
     </div>

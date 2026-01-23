@@ -85,7 +85,7 @@ interface AlbumHeaderProps {
 export const AlbumHeader: React.FC<AlbumHeaderProps> = ({ name, onBack, onPaste, hasClipboard }) => (
   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
     <div className="flex items-center gap-2">
-      <button onClick={onBack} className="p-1 hover:bg-gray-800 rounded">
+      <button onClick={onBack} className="p-1 hover:bg-gray-800 rounded cursor-pointer">
         <ArrowLeft className="h-4 w-4 text-gray-400" />
       </button>
       <h2 className="text-sm font-semibold text-gray-200">{name}</h2>

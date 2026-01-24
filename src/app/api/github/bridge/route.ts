@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchFileContent, fetchRepoContents } from "@/lib/github";
-import { analyzeWithRustBackend, checkRustBackendHealth } from "@/lib/rust-api";
+import { analyzeWithGoBackend, checkGoBackendHealth } from "@/lib/go-api";
 import type { 
   BridgeData, 
   FileDependency, 
@@ -12,8 +12,8 @@ import type {
   BridgeEdge 
 } from "@/types/bridge";
 
-// Use Rust backend for high-performance analysis (Railway.app hosted)
-const USE_RUST_BACKEND = process.env.USE_RUST_BACKEND !== "false";
+// Use Go backend for high-performance analysis (Railway.app hosted)
+const USE_GO_BACKEND = process.env.USE_GO_BACKEND !== "false";
 
 // File extensions that can have dependencies (extended for multi-language support)
 const ANALYZABLE_EXTENSIONS = [
@@ -23,8 +23,6 @@ const ANALYZABLE_EXTENSIONS = [
   ".vue", ".svelte", ".astro",
   // Python
   ".py", ".pyw", ".pyi",
-  // Rust
-  ".rs",
   // Go
   ".go",
   // Java/Kotlin
@@ -416,27 +414,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Try Rust backend first for high-performance analysis
-    if (USE_RUST_BACKEND) {
-      const isRustAvailable = await checkRustBackendHealth();
+    // Try Go backend first for high-performance analysis
+    if (USE_GO_BACKEND) {
+      const isGoAvailable = await checkGoBackendHealth();
       
-      if (isRustAvailable) {
-        console.log("[Bridge] Using Rust backend for analysis");
-        const rustResult = await analyzeWithRustBackend({
+      if (isGoAvailable) {
+        console.log("[Bridge] Using Go backend for analysis");
+        const goResult = await analyzeWithGoBackend({
           owner,
           repo,
           filePath,
           accessToken: session.user.accessToken,
         });
 
-        if (rustResult.success && rustResult.data) {
-          return NextResponse.json(rustResult);
+        if (goResult.success && goResult.data) {
+          return NextResponse.json(goResult);
         }
         
         // Log error but fall through to TypeScript fallback
-        console.warn("[Bridge] Rust backend failed, falling back to TypeScript:", rustResult.error);
+        console.warn("[Bridge] Go backend failed, falling back to TypeScript:", goResult.error);
       } else {
-        console.log("[Bridge] Rust backend unavailable, using TypeScript fallback");
+        console.log("[Bridge] Go backend unavailable, using TypeScript fallback");
       }
     }
 

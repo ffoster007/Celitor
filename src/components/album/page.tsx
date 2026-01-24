@@ -13,6 +13,14 @@ interface AlbumPageProps {
   onItemClick?: (path: string, type: "file" | "dir") => void;
 }
 
+type NotePreview = {
+  type: "album" | "item" | "group";
+  id: string;
+  title: string;
+  note: string;
+  albumId: string;
+};
+
 const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick }) => {
   const { state, fetchAlbums, createAlbum, updateAlbum, deleteAlbum, selectAlbum, updateItem, deleteItem, reorderItem, createGroup, updateGroup, deleteGroup, setClipboard, pasteItems } = useAlbum();
 
@@ -23,6 +31,7 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
   const [itemMenu, setItemMenu] = useState<{ x: number; y: number; item: AlbumItem } | null>(null);
   const [groupMenu, setGroupMenu] = useState<{ x: number; y: number; group: AlbumGroup } | null>(null);
   const [noteEditor, setNoteEditor] = useState<{ type: "album" | "item" | "group"; id: string; value: string } | null>(null);
+  const [notePreviewOverride, setNotePreviewOverride] = useState<NotePreview | null>(null);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   useEffect(() => {
@@ -31,6 +40,22 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
 
   const selectedAlbum = state.albums.find((a) => a.id === state.selectedAlbumId);
   const ungroupedItems = selectedAlbum?.items.filter((i) => !i.groupId) ?? [];
+
+  const selectedAlbumId = selectedAlbum?.id ?? "";
+  const selectedAlbumName = selectedAlbum?.name ?? "";
+  const selectedAlbumNote = selectedAlbum?.note ?? "";
+
+  const notePreview: NotePreview | null = (() => {
+    if (!selectedAlbumId) return null;
+    if (notePreviewOverride && notePreviewOverride.albumId === selectedAlbumId) return notePreviewOverride;
+    return {
+      type: "album",
+      id: selectedAlbumId,
+      title: selectedAlbumName,
+      note: selectedAlbumNote,
+      albumId: selectedAlbumId,
+    };
+  })();
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -164,6 +189,16 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
               onItemDoubleClick={handleItemDoubleClick}
               onItemContextMenu={(e, item) => { e.preventDefault(); setItemMenu({ x: e.clientX, y: e.clientY, item }); }}
               onGroupContextMenu={(e, g) => { e.preventDefault(); setGroupMenu({ x: e.clientX, y: e.clientY, group: g }); }}
+              onPreviewNote={(g) => {
+                if (g.note && g.note.trim().length > 0) {
+                  setNotePreviewOverride({ type: "group", id: g.id, title: g.name, note: g.note, albumId: selectedAlbum.id });
+                }
+              }}
+              onPreviewItemNote={(i) => {
+                if (i.note && i.note.trim().length > 0) {
+                  setNotePreviewOverride({ type: "item", id: i.id, title: i.name, note: i.note, albumId: selectedAlbum.id });
+                }
+              }}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDropToGroup={handleDropToGroup}
@@ -181,6 +216,11 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
                 onSelect={handleSelect}
                 onDoubleClick={handleItemDoubleClick}
                 onContextMenu={(e, i) => { e.preventDefault(); setItemMenu({ x: e.clientX, y: e.clientY, item: i }); }}
+                onPreviewNote={(i) => {
+                  if (i.note && i.note.trim().length > 0) {
+                    setNotePreviewOverride({ type: "item", id: i.id, title: i.name, note: i.note, albumId: selectedAlbum.id });
+                  }
+                }}
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDrop={handleDropToItem}
@@ -196,13 +236,23 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
         {/* Album Note - fixed at bottom, takes remaining space up to 50% */}
         <div className="flex-1 min-h-[100px] max-h-[50%] border-t border-gray-800 px-4 py-3 flex flex-col">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-500">Note</span>
-            <button onClick={() => setNoteEditor({ type: "album", id: selectedAlbum.id, value: selectedAlbum.note ?? "" })} className="p-1 hover:bg-gray-800 rounded">
-              <Pencil className="h-3 w-3 text-gray-500" />
-            </button>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs text-gray-500">Note</span>
+              {notePreview && (
+                <span className="text-xs text-gray-400 truncate">• {notePreview.title}</span>
+              )}
+            </div>
+            {notePreview && (
+              <button
+                onClick={() => setNoteEditor({ type: notePreview.type, id: notePreview.id, value: notePreview.note ?? "" })}
+                className="p-1 hover:bg-gray-800 rounded"
+              >
+                <Pencil className="h-3 w-3 text-gray-500" />
+              </button>
+            )}
           </div>
           <div className="flex-1 overflow-y-auto">
-            <p className="text-xs text-gray-400 whitespace-pre-wrap">{selectedAlbum.note || "No note"}</p>
+            <p className="text-xs text-gray-400 whitespace-pre-wrap">{notePreview?.note || "No note"}</p>
           </div>
         </div>
       </div>
@@ -236,6 +286,11 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
             if (noteEditor.type === "album") await updateAlbum(noteEditor.id, { note });
             else if (noteEditor.type === "item") await updateItem(noteEditor.id, { note });
             else if (noteEditor.type === "group") await updateGroup(noteEditor.id, { note });
+            setNotePreviewOverride((prev) => {
+              if (!prev) return prev;
+              if (prev.type === noteEditor.type && prev.id === noteEditor.id) return { ...prev, note };
+              return prev;
+            });
             setNoteEditor(null);
           }}
           onCancel={() => setNoteEditor(null)}

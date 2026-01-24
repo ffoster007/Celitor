@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Folder, File, Pencil, Trash2, FolderPlus, Users } from "lucide-react";
+import { Folder, File, Pencil, Trash2, FolderPlus, Users, StickyNote } from "lucide-react";
 import type { AlbumItem, AlbumGroup } from "@/types/album";
 
 interface AlbumItemCardProps {
@@ -13,31 +13,41 @@ interface AlbumItemCardProps {
   onDragStart: (e: React.DragEvent, item: AlbumItem) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, targetId: string) => void;
+  onPreviewNote?: (item: AlbumItem) => void;
 }
 
 export const AlbumItemCard: React.FC<AlbumItemCardProps> = ({
-  item, selected, onSelect, onDoubleClick, onContextMenu, onDragStart, onDragOver, onDrop,
+  item, selected, onSelect, onDoubleClick, onContextMenu, onDragStart, onDragOver, onDrop, onPreviewNote,
 }) => {
+  const hasNote = Boolean(item.note && item.note.trim().length > 0);
   return (
     <div
       draggable
       data-celitor-allow-context-menu
-      onClick={(e) => onSelect(item.id, e.ctrlKey || e.metaKey)}
+      onClick={(e) => {
+        onSelect(item.id, e.ctrlKey || e.metaKey);
+        if (hasNote) onPreviewNote?.(item);
+      }}
       onDoubleClick={() => onDoubleClick(item)}
       onContextMenu={(e) => onContextMenu(e, item)}
       onDragStart={(e) => onDragStart(e, item)}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, item.id)}
-      className={`flex items-center gap-2 px-3 py-2 border cursor-pointer select-none ${
+      className={`flex items-center justify-between gap-2 px-3 py-2 border cursor-pointer select-none ${
         selected ? "bg-white/10 border-white/30" : "border-gray-800 hover:bg-gray-900"
       }`}
     >
-      {item.type === "dir" ? (
-        <Folder className="h-4 w-4 text-yellow-500 shrink-0" />
-      ) : (
-        <File className="h-4 w-4 text-gray-400 shrink-0" />
+      <div className="flex items-center gap-2 min-w-0">
+        {item.type === "dir" ? (
+          <Folder className="h-4 w-4 text-yellow-500 shrink-0" />
+        ) : (
+          <File className="h-4 w-4 text-gray-400 shrink-0" />
+        )}
+        <span className="truncate text-sm text-gray-200">{item.name}</span>
+      </div>
+      {hasNote && (
+        <StickyNote className="h-4 w-4 text-amber-400 shrink-0 cursor-pointer" />
       )}
-      <span className="truncate text-sm text-gray-200">{item.name}</span>
     </div>
   );
 };
@@ -50,6 +60,8 @@ interface AlbumGroupCardProps {
   onItemDoubleClick: (item: AlbumItem) => void;
   onItemContextMenu: (e: React.MouseEvent, item: AlbumItem) => void;
   onGroupContextMenu: (e: React.MouseEvent, group: AlbumGroup) => void;
+  onPreviewNote?: (group: AlbumGroup) => void;
+  onPreviewItemNote?: (item: AlbumItem) => void;
   onDragStart: (e: React.DragEvent, item: AlbumItem) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDropToGroup: (e: React.DragEvent, groupId: string) => void;
@@ -58,9 +70,10 @@ interface AlbumGroupCardProps {
 
 export const AlbumGroupCard: React.FC<AlbumGroupCardProps> = ({
   group, items, selectedIds, onSelectItem, onItemDoubleClick, onItemContextMenu,
-  onGroupContextMenu, onDragStart, onDragOver, onDropToGroup, onDropToItem,
+  onGroupContextMenu, onPreviewNote, onPreviewItemNote, onDragStart, onDragOver, onDropToGroup, onDropToItem,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const hasNote = Boolean(group.note && group.note.trim().length > 0);
 
   return (
     <div
@@ -71,7 +84,10 @@ export const AlbumGroupCard: React.FC<AlbumGroupCardProps> = ({
       <div
         data-celitor-allow-context-menu
         className="flex items-center justify-between px-3 py-2 border-b border-gray-800 cursor-pointer"
-        onClick={() => setCollapsed(!collapsed)}
+        onClick={() => {
+          setCollapsed(!collapsed);
+          if (hasNote) onPreviewNote?.(group);
+        }}
         onContextMenu={(e) => onGroupContextMenu(e, group)}
       >
         <div className="flex items-center gap-2">
@@ -79,6 +95,15 @@ export const AlbumGroupCard: React.FC<AlbumGroupCardProps> = ({
           <span className="text-sm font-medium text-gray-300">{group.name}</span>
           <span className="text-xs text-gray-500">({items.length})</span>
         </div>
+        {hasNote && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onPreviewNote?.(group); }}
+            className="p-1 hover:bg-gray-800 rounded"
+            title="View note"
+          >
+            <StickyNote className="h-4 w-4 text-amber-400" />
+          </button>
+        )}
       </div>
       {!collapsed && (
         <div className="p-2 space-y-1">
@@ -93,6 +118,7 @@ export const AlbumGroupCard: React.FC<AlbumGroupCardProps> = ({
                 onSelect={onSelectItem}
                 onDoubleClick={onItemDoubleClick}
                 onContextMenu={onItemContextMenu}
+                onPreviewNote={onPreviewItemNote}
                 onDragStart={onDragStart}
                 onDragOver={onDragOver}
                 onDrop={onDropToItem}

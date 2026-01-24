@@ -47,7 +47,7 @@ export default function NotFound() {
           </Link>
 
           <Link
-            href="/dashboard"
+            href="/content"
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-gray-200 ring-1 ring-inset ring-gray-700 hover:bg-gray-800 hover:text-white"
           >
             Go to dashboard

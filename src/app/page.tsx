@@ -47,18 +47,18 @@ export default function GitBranchLanding() {
 
         <div className="relative z-10 max-w-5xl mx-auto text-center mb-20">
           <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
-            NO CONFLICTS,<br />
-            ONLY CLEAN MERGES
+            Understand repos fast<br />
+            Organize knowledge clearly
           </h1>
           <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            WE EMPOWER YOU TO MANAGE BRANCHES THAT STREAMLINE YOUR WORKFLOW AND ELIMINATE MERGE CHAOS.
+            CELITOR helps you analyze project structure, trace file paths, and save bookmarks so teams can grasp large codebases at a glance.
           </p>
           <div className="flex gap-4 justify-center">
             <button className="bg-white text-black px-8 py-3 font-bold hover:bg-gray-200 transition-all uppercase tracking-wide">
-              Boost Velocity
+              Explore the Repo
             </button>
             <button className="border-2 border-white text-white px-8 py-3 font-bold hover:bg-white hover:text-black transition-all uppercase tracking-wide">
-              Learn GitFlow
+              View Usage Guide
             </button>
           </div>
         </div>
@@ -67,25 +67,25 @@ export default function GitBranchLanding() {
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
           <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Book className="w-10 h-10 mb-4" />
-            <h3 className="text-xl font-bold mb-2 uppercase">Branch Strategy</h3>
+            <h3 className="text-xl font-bold mb-2 uppercase">Repo Analysis</h3>
             <p className="text-white/70 text-sm">
-              PROTECT YOUR MAIN BRANCH WITH AUTOMATED POLICIES AND CONTROLLED WORKFLOWS.
+              Analyze project structure and trace file paths to understand complex systems faster.
             </p>
           </div>
           
           <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Code className="w-10 h-10 mb-4" />
-            <h3 className="text-xl font-bold mb-2 uppercase">Merge Analysis</h3>
+            <h3 className="text-xl font-bold mb-2 uppercase">Bridge Visualization</h3>
             <p className="text-white/70 text-sm">
-              AI-POWERED CONFLICT DETECTION TO IDENTIFY AND RESOLVE ISSUES BEFORE THEY HAPPEN.
+              Visualize file relationships and flows to reveal critical connections across the system.
             </p>
           </div>
           
           <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Zap className="w-10 h-10 mb-4" />
-            <h3 className="text-xl font-bold mb-2 uppercase">Release Pipeline</h3>
+            <h3 className="text-xl font-bold mb-2 uppercase">Bookmark Album</h3>
             <p className="text-white/70 text-sm">
-              AUTOMATED RELEASE WORKFLOWS THAT ENSURE STABLE AND PREDICTABLE DEPLOYMENTS.
+              Save important files and code, group them into albums, and share insights instantly.
             </p>
           </div>
         </div>
@@ -93,9 +93,8 @@ export default function GitBranchLanding() {
         {/* Value Proposition */}
         <div className="relative z-10 max-w-4xl mx-auto text-center border-t-2 border-white pt-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
-            WE PROVIDE INTELLIGENT<br />
-            BRANCH MANAGEMENT TO ACCELERATE<br />
-            YOUR DEVELOPMENT VELOCITY.
+            CELITOR helps teams understand large projects faster<br />
+            with repository analysis, visual overviews, and practical bookmarking
           </h2>
         
         </div>

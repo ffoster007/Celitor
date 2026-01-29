@@ -17,6 +17,8 @@ model User {
   sessions      Session[]
   posts         Post[]
   albums        Album[]
+  stripeCustomerId String? @unique
+  subscriptions  Subscription[]
 }
 
 model Post {
@@ -121,4 +123,22 @@ model AlbumItem {
 
   @@index([albumId])
   @@index([groupId])
+}
+
+model Subscription {
+  id                    String   @id @default(cuid())
+  userId                String
+  stripeCustomerId      String
+  stripeSubscriptionId  String   @unique
+  stripePriceId         String
+  status                String
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeCustomerId])
 }

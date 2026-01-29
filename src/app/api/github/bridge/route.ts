@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchFileContent, fetchRepoContents } from "@/lib/github";
 import { analyzeWithGoBackend, checkGoBackendHealth } from "@/lib/go-api";
+import { hasActiveSubscription } from "@/lib/billing";
 import type { 
   BridgeData, 
   FileDependency, 
@@ -393,8 +394,13 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.accessToken) {
+    if (!session?.user?.id || !session?.user?.accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasSubscription = await hasActiveSubscription(session.user.id);
+    if (!hasSubscription) {
+      return NextResponse.json({ error: "Subscription required" }, { status: 402 });
     }
 
     const { owner, repo, filePath } = await request.json();

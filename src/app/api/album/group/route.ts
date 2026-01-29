@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { hasActiveSubscription } from "@/lib/billing";
 
 // POST - Create group
 export async function POST(request: NextRequest) {
@@ -9,6 +10,11 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasSubscription = await hasActiveSubscription(session.user.id);
+    if (!hasSubscription) {
+      return NextResponse.json({ error: "Subscription required" }, { status: 402 });
     }
 
     const body = await request.json();
@@ -68,6 +74,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const hasSubscription = await hasActiveSubscription(session.user.id);
+    if (!hasSubscription) {
+      return NextResponse.json({ error: "Subscription required" }, { status: 402 });
+    }
+
     const body = await request.json();
     const { groupId, name, note, order } = body;
 
@@ -107,6 +118,11 @@ export async function DELETE(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasSubscription = await hasActiveSubscription(session.user.id);
+    if (!hasSubscription) {
+      return NextResponse.json({ error: "Subscription required" }, { status: 402 });
     }
 
     const { searchParams } = new URL(request.url);

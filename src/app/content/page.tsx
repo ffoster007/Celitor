@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState, useSyncExternalStore, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import ActivityBar from "@/components/activitybar/page";
 import Toolbar from "@/components/toolbar/page";
+import SettingsPage from "@/components/toolbar/settings-page";
 import { FileExplorer, FileViewer, RepoSelector } from "@/components/explorer";
 import { BridgeVisualization } from "@/components/bridge";
 import { FileContextMenu } from "@/components/bridge/file-context-menu";
@@ -61,6 +63,7 @@ const isGitHubRepo = (value: unknown): value is GitHubRepo => {
 };
 
 const ContentPage = () => {
+    const searchParams = useSearchParams();
     const hydrated = useSyncExternalStore(
         subscribeNoop,
         getHydratedSnapshot,
@@ -238,6 +241,10 @@ const ContentPage = () => {
             setActiveFilePath(null);
         }
     }, []);
+
+    if (searchParams.get("view") === "settings") {
+        return <SettingsPage />;
+    }
 
     return (
         <AlbumProvider>

@@ -35,20 +35,13 @@ export default function PricingPage() {
 					<section className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
 						<div className="border-2 border-white bg-black/70 p-8 md:p-10">
 							<div className="flex items-baseline gap-4 mb-4">
-								<span className="text-5xl font-bold">$2.99</span>
+								<span className="text-5xl font-bold">$10</span>
 								<span className="text-white/60">/ month</span>
 							</div>
 							<p className="text-white/70 mb-8">
 								Ideal for developers and small teams who want to understand codebases faster and organize knowledge effectively.
 							</p>
 							<div className="grid gap-4 mb-10">
-								<div className="flex items-start gap-3">
-									<span className="text-white">✓</span>
-									<div>
-										<p className="font-semibold">Interactive Repo Insights</p>
-										<p className="text-white/60 text-sm">Visualize project structure and file paths, with dependency tracing.</p>
-									</div>
-								</div>
 								<div className="flex items-start gap-3">
 									<span className="text-white">✓</span>
 									<div>
@@ -61,13 +54,6 @@ export default function PricingPage() {
 									<div>
 										<p className="font-semibold">Share Insights with Your Team</p>
 										<p className="text-white/60 text-sm">Share album links for fast reviews and onboarding.</p>
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="text-white">✓</span>
-									<div>
-										<p className="font-semibold">Automatic Updates</p>
-										<p className="text-white/60 text-sm">Sync with GitHub and track changed files automatically.</p>
 									</div>
 								</div>
 							</div>

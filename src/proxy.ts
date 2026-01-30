@@ -9,7 +9,7 @@ const DEFAULT_REDIRECT = "/content";
 // กำหนดหน้าที่เป็น public (ไม่ต้อง auth)
 const PUBLIC_ROUTES = [
   "/",
-  "/landing/pricing",
+  "/landing",
   "/open/oauth",
   "/api/auth",
   // เพิ่มหน้า public อื่นๆ ตามต้องการ

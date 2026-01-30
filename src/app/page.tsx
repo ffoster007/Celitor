@@ -17,9 +17,8 @@ export default function GitBranchLanding() {
             <span className="text-xl font-bold tracking-wider">CELITOR</span>
           </div>
           <div className="flex items-center gap-8">
-            <a href="#features" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Features</a>
-            <Link href="/pricing" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Pricing</Link>
-            <Link href="/pricing" className="bg-white text-black px-6 py-2 font-bold hover:bg-gray-200 transition-colors uppercase tracking-wide cursor-pointer">
+            <Link href="/landing" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Pricing</Link>
+            <Link href="/auth/pricing" className="bg-white text-black px-6 py-2 font-bold hover:bg-gray-200 transition-colors uppercase tracking-wide cursor-pointer">
               Get Started
             </Link>
           </div>

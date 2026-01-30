@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Zap, Book, Code } from 'lucide-react';
+import { Zap, Book } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GitBranchLanding() {
@@ -64,20 +64,12 @@ export default function GitBranchLanding() {
         </div>
 
         {/* Features Grid */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-16">
           <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
             <Book className="w-10 h-10 mb-4" />
             <h3 className="text-xl font-bold mb-2 uppercase">Repo Analysis</h3>
             <p className="text-white/70 text-sm">
               Analyze project structure and trace file paths to understand complex systems faster.
-            </p>
-          </div>
-          
-          <div className="border-2 border-white bg-black/50 p-6 backdrop-blur-sm hover:bg-white/10 transition-all">
-            <Code className="w-10 h-10 mb-4" />
-            <h3 className="text-xl font-bold mb-2 uppercase">Bridge Visualization</h3>
-            <p className="text-white/70 text-sm">
-              Visualize file relationships and flows to reveal critical connections across the system.
             </p>
           </div>
           
@@ -91,13 +83,6 @@ export default function GitBranchLanding() {
         </div>
 
         {/* Value Proposition */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center border-t-2 border-white pt-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 leading-tight">
-            CELITOR helps teams understand large projects faster<br />
-            with repository analysis, visual overviews, and practical bookmarking
-          </h2>
-        
-        </div>
       </div>
     </div>
   );

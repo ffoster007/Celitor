@@ -3,8 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { hasActiveSubscription } from "@/lib/billing";
+import { checkForkStatus } from "@/lib/github";
 
-// GET - Fetch albums for a repository (shared with contributors)
+// GET - Fetch albums for a repository (includes albums from source repo for forks)
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -25,9 +26,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Missing repository info" }, { status: 400 });
     }
 
-    // Fetch albums - For security, in production you'd verify contributor access via GitHub API
-    // For now, we fetch user's own albums + albums shared in the same repo
-    const albums = await prisma.album.findMany({
+    // Fetch user's own albums for this repo
+    const userAlbums = await prisma.album.findMany({
       where: { repoOwner, repoName, userId: session.user.id },
       include: {
         items: { orderBy: { order: "asc" } },
@@ -36,7 +36,66 @@ export async function GET(request: NextRequest) {
       orderBy: { order: "asc" },
     });
 
-    return NextResponse.json({ success: true, data: albums });
+    // Check if this repo is a fork and fetch albums from source repository
+    let sourceAlbums: typeof userAlbums = [];
+    let forkInfo = null;
+
+    if (session.user.accessToken) {
+      try {
+        forkInfo = await checkForkStatus(session.user.accessToken, repoOwner, repoName);
+        
+        if (forkInfo.isFork && forkInfo.sourceOwner && forkInfo.sourceName) {
+          // Fetch all albums from the source repository (from all users)
+          const sourceRepoAlbums = await prisma.album.findMany({
+            where: {
+              repoOwner: forkInfo.sourceOwner,
+              repoName: forkInfo.sourceName,
+              isShared: false, // Only original albums, not synced ones
+            },
+            include: {
+              items: { orderBy: { order: "asc" } },
+              groups: { include: { items: { orderBy: { order: "asc" } } }, orderBy: { order: "asc" } },
+              user: { select: { name: true, image: true } }, // Include creator info
+            },
+            orderBy: { order: "asc" },
+          });
+
+          // Mark these albums as from source repo and transform them
+          sourceAlbums = sourceRepoAlbums.map(album => ({
+            ...album,
+            isFromSourceRepo: true,
+            sourceRepoOwner: forkInfo!.sourceOwner,
+            sourceRepoName: forkInfo!.sourceName,
+          })) as typeof userAlbums;
+        }
+      } catch (error) {
+        console.error("Error checking fork status:", error);
+        // Continue without source albums if fork check fails
+      }
+    }
+
+    // Combine user's albums with source repo albums
+    // Filter out source albums that user has already synced (by sourceAlbumId)
+    const syncedAlbumIds = new Set(
+      userAlbums
+        .filter(a => a.sourceAlbumId)
+        .map(a => a.sourceAlbumId)
+    );
+
+    const filteredSourceAlbums = sourceAlbums.filter(
+      album => !syncedAlbumIds.has(album.id)
+    );
+
+    const allAlbums = [...userAlbums, ...filteredSourceAlbums];
+
+    return NextResponse.json({ 
+      success: true, 
+      data: allAlbums,
+      forkInfo: forkInfo?.isFork ? {
+        sourceOwner: forkInfo.sourceOwner,
+        sourceName: forkInfo.sourceName,
+      } : null,
+    });
   } catch (error) {
     console.error("Album GET error:", error);
     return NextResponse.json({ error: "Failed to fetch albums" }, { status: 500 });

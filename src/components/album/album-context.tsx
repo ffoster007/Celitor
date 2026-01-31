@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useCallback, ReactNode } from "react";
-import type { Album, AlbumItem, AlbumGroup, AlbumViewMode, BookmarkModalState } from "@/types/album";
+import React, { createContext, useContext, useReducer, useCallback, ReactNode, useState } from "react";
+import type { Album, AlbumItem, AlbumGroup, AlbumViewMode, BookmarkModalState, ForkSyncInfo } from "@/types/album";
 
 interface AlbumState {
   albums: Album[];
@@ -160,12 +160,19 @@ interface AlbumContextValue {
   setClipboard: (items: AlbumItem[], action: "copy" | "cut") => void;
   pasteItems: (albumId: string) => Promise<void>;
   getBookmarkedPaths: (albumId?: string) => Set<string>;
+  // Fork sync functions
+  checkForkStatus: (repoOwner: string, repoName: string) => Promise<ForkSyncInfo | null>;
+  syncFromParent: (repoOwner: string, repoName: string) => Promise<{ success: boolean; syncedCount?: number; message?: string }>;
+  forkSyncInfo: ForkSyncInfo | null;
+  syncLoading: boolean;
 }
 
 const AlbumContext = createContext<AlbumContextValue | null>(null);
 
 export function AlbumProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(albumReducer, initialState);
+  const [forkSyncInfo, setForkSyncInfo] = useState<ForkSyncInfo | null>(null);
+  const [syncLoading, setSyncLoading] = useState(false);
 
   const fetchAlbums = useCallback(async (repoOwner: string, repoName: string) => {
     dispatch({ type: "SET_LOADING", payload: true });
@@ -343,12 +350,61 @@ export function AlbumProvider({ children }: { children: ReactNode }) {
     return paths;
   }, [state.albums]);
 
+  // Check if repo is a fork and get sync info
+  const checkForkStatus = useCallback(async (repoOwner: string, repoName: string): Promise<ForkSyncInfo | null> => {
+    try {
+      const res = await fetch(`/api/album/sync?repoOwner=${repoOwner}&repoName=${repoName}`);
+      const json = await res.json();
+      if (json.success) {
+        setForkSyncInfo(json.data);
+        return json.data;
+      }
+    } catch {
+      console.error("Failed to check fork status");
+    }
+    return null;
+  }, []);
+
+  // Sync albums from parent repository
+  const syncFromParent = useCallback(async (repoOwner: string, repoName: string) => {
+    setSyncLoading(true);
+    try {
+      const res = await fetch("/api/album/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoOwner, repoName }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        // Add synced albums to state
+        for (const album of json.data.albums) {
+          // Check if album already exists in state
+          const exists = state.albums.find(a => a.id === album.id);
+          if (exists) {
+            dispatch({ type: "UPDATE_ALBUM", payload: album });
+          } else {
+            dispatch({ type: "ADD_ALBUM", payload: album });
+          }
+        }
+        // Refresh fork status
+        await checkForkStatus(repoOwner, repoName);
+        return { success: true, syncedCount: json.data.syncedCount, message: json.message };
+      }
+      return { success: false, message: json.error };
+    } catch (error) {
+      return { success: false, message: "Failed to sync albums" };
+    } finally {
+      setSyncLoading(false);
+    }
+  }, [state.albums, checkForkStatus]);
+
   return (
     <AlbumContext.Provider
       value={{
         state, fetchAlbums, createAlbum, updateAlbum, deleteAlbum, selectAlbum,
         openBookmarkModal, closeBookmarkModal, addBookmark, updateItem, deleteItem, reorderItem,
         createGroup, updateGroup, deleteGroup, setClipboard, pasteItems, getBookmarkedPaths,
+        checkForkStatus, syncFromParent, forkSyncInfo, syncLoading,
       }}
     >
       {children}

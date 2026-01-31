@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Celitor - Branch Management Platform",
+  title: "Celitor",
   description: "Secure branch management platform",
 };
 

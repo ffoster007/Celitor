@@ -13,6 +13,21 @@ export interface GitHubRepo {
   default_branch: string;
   updated_at: string;
   language: string | null;
+  fork: boolean;
+  parent?: {
+    owner: {
+      login: string;
+    };
+    name: string;
+    full_name: string;
+  };
+  source?: {
+    owner: {
+      login: string;
+    };
+    name: string;
+    full_name: string;
+  };
 }
 
 export interface GitHubContent {
@@ -115,4 +130,58 @@ export function sortContents(contents: GitHubContent[]): GitHubContent[] {
     }
     return a.type === "dir" ? -1 : 1;
   });
+}
+
+// Fetch single repository details (includes fork info)
+export async function fetchRepoDetails(
+  accessToken: string,
+  owner: string,
+  repo: string
+): Promise<GitHubRepo> {
+  const response = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/vnd.github.v3+json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch repo details: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+// Check if a repository is a fork and get parent info
+export interface ForkInfo {
+  isFork: boolean;
+  parentOwner?: string;
+  parentName?: string;
+  sourceOwner?: string;  // Ultimate source (for forks of forks)
+  sourceName?: string;
+}
+
+export async function checkForkStatus(
+  accessToken: string,
+  owner: string,
+  repo: string
+): Promise<ForkInfo> {
+  try {
+    const repoDetails = await fetchRepoDetails(accessToken, owner, repo);
+    
+    if (!repoDetails.fork) {
+      return { isFork: false };
+    }
+
+    return {
+      isFork: true,
+      parentOwner: repoDetails.parent?.owner.login,
+      parentName: repoDetails.parent?.name,
+      sourceOwner: repoDetails.source?.owner.login,
+      sourceName: repoDetails.source?.name,
+    };
+  } catch (error) {
+    console.error("Error checking fork status:", error);
+    return { isFork: false };
+  }
 }

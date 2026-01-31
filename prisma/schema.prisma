@@ -76,21 +76,29 @@ model AccessLog {
 
 // Album System
 model Album {
-  id          String      @id @default(cuid())
-  name        String
-  repoOwner   String
-  repoName    String
-  note        String?     @db.Text
-  order       Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items       AlbumItem[]
-  groups      AlbumGroup[]
+  id              String      @id @default(cuid())
+  name            String
+  repoOwner       String
+  repoName        String
+  note            String?     @db.Text
+  order           Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           AlbumItem[]
+  groups          AlbumGroup[]
+  
+  // Shared Album fields - for tracking forked repo albums
+  sourceRepoOwner String?     // Original repo owner (for forked repos)
+  sourceRepoName  String?     // Original repo name (for forked repos)
+  sourceAlbumId   String?     // Original album ID that this was synced from
+  isShared        Boolean     @default(false)  // True if this album was synced from parent repo
+  lastSyncedAt    DateTime?   // Last time this album was synced from source
 
   @@unique([userId, repoOwner, repoName, name])
   @@index([repoOwner, repoName])
+  @@index([sourceRepoOwner, sourceRepoName])
 }
 
 model AlbumGroup {

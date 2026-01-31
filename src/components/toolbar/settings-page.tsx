@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import Toolbar from "@/components/toolbar/page";
@@ -33,6 +33,8 @@ const SettingsPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [deleteLoading, setDeleteLoading] = useState(false);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [payload, setPayload] = useState<SubscriptionPayload | null>(null);
 
 	const refreshSubscription = useCallback(async () => {
@@ -84,6 +86,31 @@ const SettingsPage = () => {
 			setCancelLoading(false);
 		}
 	}, [cancelLoading, refreshSubscription]);
+
+	const handleDeleteAccount = useCallback(async () => {
+		if (deleteLoading) return;
+		const confirmed = window.confirm(
+			"Delete your account? This will permanently remove your data and cannot be undone."
+		);
+		if (!confirmed) return;
+		setDeleteLoading(true);
+		setDeleteError(null);
+		try {
+			const response = await fetch("/api/account", {
+				method: "DELETE",
+				cache: "no-store",
+			});
+			if (!response.ok) {
+				const data = await response.json().catch(() => null);
+				throw new Error(data?.error || "Failed to delete account");
+			}
+			await signOut({ callbackUrl: "/open/oauth" });
+		} catch (err) {
+			setDeleteError(err instanceof Error ? err.message : "Failed to delete account");
+		} finally {
+			setDeleteLoading(false);
+		}
+	}, [deleteLoading]);
 
 	const subscription = payload?.subscription ?? null;
 	const isActive = payload?.active ?? false;
@@ -152,7 +179,7 @@ const SettingsPage = () => {
 									<button
 										onClick={handleCancel}
 										disabled={cancelLoading || cancelAtPeriodEnd}
-										className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+										className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
 									>
 										{cancelLoading ? (
 											<Loader2 className="h-4 w-4 animate-spin" />
@@ -168,6 +195,55 @@ const SettingsPage = () => {
 									<span>No active subscription to cancel.</span>
 								</div>
 							)}
+						</div>
+					)}
+				</div>
+
+				<div className="mt-6 rounded-lg border border-slate-800 bg-black/70 p-6">
+					<div className="mb-4">
+						<h2 className="text-lg font-semibold">Account</h2>
+						<p className="mt-1 text-sm text-slate-400">
+							Manage your account and personal data.
+						</p>
+					</div>
+
+					{status === "authenticated" ? (
+						<div className="space-y-3">
+							<p className="text-sm text-slate-400">
+								Deleting your account permanently removes your albums, notes, and
+								subscription history.
+							</p>
+							{deleteError ? (
+								<div className="flex items-center gap-2 rounded-md border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+									<AlertTriangle className="h-4 w-4" />
+									<span>{deleteError}</span>
+								</div>
+							) : null}
+							<button
+								onClick={handleDeleteAccount}
+								disabled={deleteLoading}
+								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+							>
+								{deleteLoading ? (
+									<Loader2 className="h-4 w-4 animate-spin" />
+								) : (
+									<AlertTriangle className="h-4 w-4" />
+								)}
+								<span>Delete Account</span>
+							</button>
+						</div>
+					) : (
+						<div className="space-y-3">
+							<div className="flex items-center gap-2 text-sm text-amber-200">
+								<AlertTriangle className="h-4 w-4" />
+								<span>Please sign in to manage your account.</span>
+							</div>
+							<Link
+								href="/open/oauth"
+								className="inline-flex items-center rounded-md border border-slate-700 px-3 py-2 text-sm text-slate-200 transition hover:border-slate-600 hover:text-white"
+							>
+								Go to sign in
+							</Link>
 						</div>
 					)}
 				</div>

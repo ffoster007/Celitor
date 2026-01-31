@@ -1,15 +1,14 @@
 "use client";
 
 import { useMemo, useRef, useState, useSyncExternalStore, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import ActivityBar from "@/components/activitybar/page";
 import Toolbar from "@/components/toolbar/page";
-import { FileExplorer, FileViewer, RepoSelector } from "@/components/explorer";
-import { BridgeVisualization } from "@/components/bridge";
-import { FileContextMenu } from "@/components/bridge/file-context-menu";
+import SettingsPage from "@/components/toolbar/settings-page";
+import { FileExplorer, FileViewer, RepoSelector, FileContextMenu, type FileContextMenuState } from "@/components/explorer";
 import UsageGuide from "@/components/content/usage-guide";
 import { AlbumPage, AlbumProvider, useAlbum, BookmarkModal } from "@/components/album";
 import type { GitHubRepo } from "@/lib/github";
-import type { BridgeData, FileContextMenuState } from "@/types/bridge";
 
 const SELECTED_REPO_STORAGE_KEY = "celitor_selected_repo";
 const SELECTED_REPO_CHANGED_EVENT = "celitor:selected_repo_changed";
@@ -61,6 +60,7 @@ const isGitHubRepo = (value: unknown): value is GitHubRepo => {
 };
 
 const ContentPage = () => {
+    const searchParams = useSearchParams();
     const hydrated = useSyncExternalStore(
         subscribeNoop,
         getHydratedSnapshot,
@@ -91,11 +91,6 @@ const ContentPage = () => {
     const [panelWidth, setPanelWidth] = useState(256);
     const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
     const [highlightedPath, setHighlightedPath] = useState<string | null>(null);
-
-    // Bridge system state
-    const [bridgeData, setBridgeData] = useState<BridgeData | null>(null);
-    const [bridgeLoading, setBridgeLoading] = useState(false);
-    const [bridgeError, setBridgeError] = useState<string | null>(null);
     const [contextMenu, setContextMenu] = useState<FileContextMenuState>({
         isOpen: false,
         position: { x: 0, y: 0 },
@@ -173,7 +168,7 @@ const ContentPage = () => {
         }
     };
 
-    // Bridge system handlers
+    // Context menu handlers
     const handleContextMenu = useCallback((event: React.MouseEvent, path: string, name: string) => {
         setContextMenu({
             isOpen: true,
@@ -185,46 +180,6 @@ const ContentPage = () => {
 
     const handleCloseContextMenu = useCallback(() => {
         setContextMenu(prev => ({ ...prev, isOpen: false }));
-    }, []);
-
-    const handleBridge = useCallback(async (filePath: string) => {
-        if (!selectedRepo) return;
-
-        setBridgeLoading(true);
-        setBridgeError(null);
-        setBridgeData(null);
-
-        try {
-            const response = await fetch("/api/github/bridge", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    owner: selectedRepo.owner.login,
-                    repo: selectedRepo.name,
-                    filePath,
-                }),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
-                throw new Error(result.error || "Failed to analyze dependencies");
-            }
-
-            setBridgeData(result.data);
-        } catch (err) {
-            setBridgeError(err instanceof Error ? err.message : "An error occurred");
-        } finally {
-            setBridgeLoading(false);
-        }
-    }, [selectedRepo]);
-
-    const handleCloseBridge = useCallback(() => {
-        setBridgeData(null);
-        setBridgeError(null);
-        setBridgeLoading(false);
     }, []);
 
     // Album item click handler - opens explorer panel alongside album view
@@ -239,6 +194,10 @@ const ContentPage = () => {
         }
     }, []);
 
+    if (searchParams.get("view") === "settings") {
+        return <SettingsPage />;
+    }
+
     return (
         <AlbumProvider>
             <ContentInner
@@ -248,9 +207,6 @@ const ContentPage = () => {
                 showAlbumView={showAlbumView}
                 activeFilePath={activeFilePath}
                 panelWidth={panelWidth}
-                bridgeData={bridgeData}
-                bridgeLoading={bridgeLoading}
-                bridgeError={bridgeError}
                 contextMenu={contextMenu}
                 showRepoSelector={showRepoSelector}
                 highlightedPath={highlightedPath}
@@ -263,8 +219,6 @@ const ContentPage = () => {
                 onBackToExplorer={handleBackToExplorer}
                 onContextMenu={handleContextMenu}
                 onCloseContextMenu={handleCloseContextMenu}
-                onBridge={handleBridge}
-                onCloseBridge={handleCloseBridge}
                 onRepoSelectorClose={() => selectedRepo && setRepoSelectorOpen(false)}
                 onResizeStart={handleResizeStart}
                 onResizeMove={handleResizeMove}
@@ -283,9 +237,6 @@ interface ContentInnerProps {
     showAlbumView: boolean;
     activeFilePath: string | null;
     panelWidth: number;
-    bridgeData: BridgeData | null;
-    bridgeLoading: boolean;
-    bridgeError: string | null;
     contextMenu: FileContextMenuState;
     showRepoSelector: boolean;
     highlightedPath: string | null;
@@ -298,8 +249,6 @@ interface ContentInnerProps {
     onBackToExplorer: () => void;
     onContextMenu: (event: React.MouseEvent, path: string, name: string) => void;
     onCloseContextMenu: () => void;
-    onBridge: (filePath: string) => void;
-    onCloseBridge: () => void;
     onRepoSelectorClose: () => void;
     onResizeStart: (event: React.PointerEvent<HTMLDivElement>) => void;
     onResizeMove: (event: React.PointerEvent<HTMLDivElement>) => void;
@@ -315,9 +264,6 @@ const ContentInner: React.FC<ContentInnerProps> = ({
     showAlbumView,
     activeFilePath,
     panelWidth,
-    bridgeData,
-    bridgeLoading,
-    bridgeError,
     contextMenu,
     showRepoSelector,
     highlightedPath,
@@ -329,8 +275,6 @@ const ContentInner: React.FC<ContentInnerProps> = ({
     onBackToExplorer,
     onContextMenu,
     onCloseContextMenu,
-    onBridge,
-    onCloseBridge,
     onRepoSelectorClose,
     onResizeStart,
     onResizeMove,
@@ -462,17 +406,6 @@ const ContentInner: React.FC<ContentInnerProps> = ({
                     ) : (
                         <UsageGuide />
                     )}
-                    
-                    {/* Bridge Visualization Overlay */}
-                    {(bridgeData || bridgeLoading || bridgeError) && (
-                        <BridgeVisualization
-                            data={bridgeData}
-                            isLoading={bridgeLoading}
-                            error={bridgeError}
-                            onClose={onCloseBridge}
-                            onOpenFile={onFileSelect}
-                        />
-                    )}
                 </main>
             </div>
 
@@ -490,7 +423,6 @@ const ContentInner: React.FC<ContentInnerProps> = ({
             <FileContextMenu
                 state={contextMenu}
                 onClose={onCloseContextMenu}
-                onBridge={onBridge}
                 onViewFile={onFileSelect}
                 onBookmark={handleBookmark}
             />

@@ -2,16 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchRepoContents, sortContents } from "@/lib/github";
+import { hasActiveSubscription } from "@/lib/billing";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.accessToken) {
+    if (!session?.user?.id || !session?.user?.accessToken) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
+    }
+
+    const hasSubscription = await hasActiveSubscription(session.user.id);
+    if (!hasSubscription) {
+      return NextResponse.json({ error: "Subscription required" }, { status: 402 });
     }
 
     const { searchParams } = new URL(request.url);

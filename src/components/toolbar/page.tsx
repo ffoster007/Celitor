@@ -4,7 +4,6 @@ import AvatarMenu from "./avatar";
 import Image from "next/image";
 
 const Toolbar = () => {
-
 	return (
 		<header className="sticky top-0 z-20 w-full border-b border-gray-800 bg-black/95">
 			<div className="flex h-10 items-center justify-between px-4">

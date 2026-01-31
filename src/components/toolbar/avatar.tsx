@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { CreditCard, LogOut, Settings } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 
@@ -62,6 +63,7 @@ const AvatarMenu = () => {
 
 	const initial = session?.user?.name?.charAt(0)?.toUpperCase() || "G";
 
+
 	return (
 		<div ref={rootRef} className="relative">
 			<button
@@ -101,14 +103,14 @@ const AvatarMenu = () => {
 								</div>
 							</div>
 							<div className="space-y-1">
-								<button className="flex w-full cursor-pointer items-center space-x-2 rounded-sm px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-900">
+								<Link
+									href="/content?view=settings"
+									onClick={() => setOpen(false)}
+									className="flex w-full cursor-pointer items-center space-x-2 rounded-sm px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-900"
+								>
 									<Settings className="h-4 w-4 text-slate-300" />
 									<span>Settings</span>
-								</button>
-								<button className="flex w-full cursor-pointer items-center space-x-2 rounded-sm px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-900">
-									<CreditCard className="h-4 w-4 text-slate-300" />
-									<span>Billing</span>
-								</button>
+								</Link>
 								<button
 									onClick={() => signOut({ callbackUrl: "/" })}
 									className="flex w-full cursor-pointer items-center space-x-2 rounded-sm px-3 py-2 text-sm text-rose-200 transition hover:bg-slate-900"

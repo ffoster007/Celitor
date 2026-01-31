@@ -6,16 +6,77 @@ import { authSecret } from "@/lib/auth-config";
 const SIGN_IN_PATH = "/open/oauth";
 const DEFAULT_REDIRECT = "/content";
 
+// Security headers for all responses
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "X-XSS-Protection": "1; mode=block",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+} as const;
+
+// Content Security Policy
+const CSP_HEADER = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://api.stripe.com https://api.github.com wss:",
+  "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 // กำหนดหน้าที่เป็น public (ไม่ต้อง auth)
 const PUBLIC_ROUTES = [
   "/",
   "/landing",
   "/open/oauth",
   "/api/auth",
+  "/api/stripe/webhook", // Stripe webhook ต้อง public
   // เพิ่มหน้า public อื่นๆ ตามต้องการ
 ];
 
+// Check for suspicious requests (security scanners, bots)
+function isSuspiciousRequest(userAgent: string): boolean {
+  const suspiciousPatterns = [
+    /sqlmap/i,
+    /nikto/i,
+    /havij/i,
+    /nessus/i,
+    /\bcurl\b.*\bbot\b/i,
+  ];
+  return suspiciousPatterns.some((pattern) => pattern.test(userAgent));
+}
+
+// Add security headers to response
+function addSecurityHeaders(response: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
+  
+  // Add CSP and HSTS in production
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set("Content-Security-Policy", CSP_HEADER);
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload"
+    );
+  }
+  
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
+  // Block suspicious requests
+  const userAgent = request.headers.get("user-agent") || "";
+  if (isSuspiciousRequest(userAgent)) {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
   const token = await getToken({
     req: request,
     secret: authSecret,
@@ -68,7 +129,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  return NextResponse.next();
+  // Add security headers to all responses
+  const response = NextResponse.next();
+  return addSecurityHeaders(response);
 }
 
 // ป้องกันทุกหน้า ยกเว้น static files และ API routes บางตัว

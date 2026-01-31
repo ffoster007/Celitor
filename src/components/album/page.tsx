@@ -22,7 +22,12 @@ type NotePreview = {
 };
 
 const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick }) => {
-  const { state, fetchAlbums, createAlbum, updateAlbum, deleteAlbum, selectAlbum, updateItem, deleteItem, reorderItem, createGroup, updateGroup, deleteGroup, setClipboard, pasteItems } = useAlbum();
+  const { 
+    state, fetchAlbums, createAlbum, updateAlbum, deleteAlbum, selectAlbum, 
+    updateItem, deleteItem, reorderItem, createGroup, updateGroup, deleteGroup, 
+    setClipboard, pasteItems,
+    checkForkStatus, syncFromParent, forkSyncInfo, syncLoading
+  } = useAlbum();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [renameTarget, setRenameTarget] = useState<Album | null>(null);
@@ -36,7 +41,9 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
 
   useEffect(() => {
     fetchAlbums(repoOwner, repoName);
-  }, [fetchAlbums, repoOwner, repoName]);
+    // Check fork status when repo changes
+    checkForkStatus(repoOwner, repoName);
+  }, [fetchAlbums, checkForkStatus, repoOwner, repoName]);
 
   const selectedAlbum = state.albums.find((a) => a.id === state.selectedAlbumId);
   const ungroupedItems = selectedAlbum?.items.filter((i) => !i.groupId) ?? [];
@@ -146,6 +153,9 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
           onCreate={() => setShowCreateModal(true)}
           onRename={(a) => setRenameTarget(a)}
           onDelete={(a) => deleteAlbum(a.id)}
+          forkSyncInfo={forkSyncInfo}
+          onSync={() => syncFromParent(repoOwner, repoName)}
+          syncLoading={syncLoading}
         />
         {showCreateModal && (
           <CreateAlbumModal
@@ -172,6 +182,17 @@ const AlbumPage: React.FC<AlbumPageProps> = ({ repoOwner, repoName, onItemClick 
         onBack={() => selectAlbum(null)}
         hasClipboard={!!state.clipboard}
         onPaste={() => pasteItems(selectedAlbum.id)}
+        isShared={selectedAlbum.isShared}
+        isFromSourceRepo={selectedAlbum.isFromSourceRepo}
+        sourceRepo={
+          (selectedAlbum.sourceRepoOwner && selectedAlbum.sourceRepoName) 
+            ? { owner: selectedAlbum.sourceRepoOwner, name: selectedAlbum.sourceRepoName }
+            : (selectedAlbum.isFromSourceRepo && selectedAlbum.repoOwner && selectedAlbum.repoName)
+              ? { owner: selectedAlbum.repoOwner, name: selectedAlbum.repoName }
+              : null
+        }
+        lastSyncedAt={selectedAlbum.lastSyncedAt}
+        creatorName={selectedAlbum.user?.name}
       />
 
       {/* Main content - split into items and note sections */}

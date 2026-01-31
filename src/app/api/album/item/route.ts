@@ -3,6 +3,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { hasActiveSubscription } from "@/lib/billing";
+import {
+  validateCuid,
+  validateString,
+  validateFilePath,
+  validateEnum,
+  validatePositiveInt,
+  validateAll,
+  createValidationError,
+  sanitizeString,
+  ALBUM_ITEM_TYPES,
+} from "@/lib/validation";
 
 // POST - Add bookmark to album
 export async function POST(request: NextRequest) {
@@ -20,8 +31,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { albumId, path, name, type } = body;
 
-    if (!albumId || !path || !name || !type) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    // Validate all inputs
+    const errors = validateAll([
+      () => validateCuid(albumId, "albumId"),
+      () => validateFilePath(path, "path"),
+      () => validateString(name, "name", { minLength: 1, maxLength: 255 }),
+      () => validateEnum(type, "type", ALBUM_ITEM_TYPES),
+    ]);
+
+    if (errors.length > 0) {
+      return NextResponse.json(createValidationError(errors), { status: 400 });
     }
 
     // Verify album ownership
@@ -41,8 +60,8 @@ export async function POST(request: NextRequest) {
     const item = await prisma.albumItem.create({
       data: {
         albumId,
-        path,
-        name,
+        path: sanitizeString(path, 1000),
+        name: sanitizeString(name, 255),
         type,
         order: (maxOrder._max.order ?? -1) + 1,
       },
@@ -71,8 +90,21 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { itemId, note, order, groupId } = body;
 
-    if (!itemId) {
-      return NextResponse.json({ error: "Missing itemId" }, { status: 400 });
+    // Validate itemId
+    const itemIdError = validateCuid(itemId, "itemId");
+    if (itemIdError) {
+      return NextResponse.json({ error: itemIdError }, { status: 400 });
+    }
+
+    // Validate optional fields
+    const errors = validateAll([
+      () => note !== undefined ? validateString(note, "note", { required: false, maxLength: 5000 }) : null,
+      () => order !== undefined ? validatePositiveInt(order, "order", { max: 10000 }) : null,
+      () => groupId !== undefined && groupId !== null ? validateCuid(groupId, "groupId") : null,
+    ]);
+
+    if (errors.length > 0) {
+      return NextResponse.json(createValidationError(errors), { status: 400 });
     }
 
     // Verify ownership via album
@@ -88,7 +120,7 @@ export async function PATCH(request: NextRequest) {
     const updated = await prisma.albumItem.update({
       where: { id: itemId },
       data: {
-        ...(note !== undefined && { note }),
+        ...(note !== undefined && { note: sanitizeString(note, 5000) }),
         ...(order !== undefined && { order }),
         ...(groupId !== undefined && { groupId }),
       },

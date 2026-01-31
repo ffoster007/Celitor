@@ -36,6 +36,19 @@ export interface Album {
   groups: AlbumGroup[];
   createdAt: string;
   updatedAt: string;
+  // Shared album fields
+  sourceRepoOwner: string | null;
+  sourceRepoName: string | null;
+  sourceAlbumId: string | null;
+  isShared: boolean;
+  lastSyncedAt: string | null;
+  // Virtual field - album from source repo (not synced yet)
+  isFromSourceRepo?: boolean;
+  // Creator info (for source repo albums)
+  user?: {
+    name: string | null;
+    image: string | null;
+  };
 }
 
 // API Request/Response types
@@ -93,6 +106,22 @@ export interface AlbumState {
   viewMode: AlbumViewMode;
   loading: boolean;
   error: string | null;
+}
+
+// Fork sync info
+export interface ForkSyncInfo {
+  isFork: boolean;
+  parentRepo?: {
+    owner: string;
+    name: string;
+  };
+  sourceRepo?: {
+    owner: string;
+    name: string;
+  };
+  availableAlbums: number;
+  syncedAlbums: number;
+  canSync: boolean;
 }
 
 // Drag and drop

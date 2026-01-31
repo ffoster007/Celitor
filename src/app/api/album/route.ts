@@ -4,6 +4,15 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { hasActiveSubscription } from "@/lib/billing";
 import { checkForkStatus } from "@/lib/github";
+import {
+  validateString,
+  validateCuid,
+  validateRepoIdentifier,
+  validatePositiveInt,
+  validateAll,
+  createValidationError,
+  sanitizeString,
+} from "@/lib/validation";
 
 // GET - Fetch albums for a repository (includes albums from source repo for forks)
 export async function GET(request: NextRequest) {
@@ -118,9 +127,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, repoOwner, repoName } = body;
 
-    if (!name || !repoOwner || !repoName) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    // Validate inputs
+    const errors = validateAll([
+      () => validateString(name, "name", { minLength: 1, maxLength: 100 }),
+      () => validateRepoIdentifier(repoOwner, "repoOwner"),
+      () => validateRepoIdentifier(repoName, "repoName"),
+    ]);
+
+    if (errors.length > 0) {
+      return NextResponse.json(createValidationError(errors), { status: 400 });
     }
+
+    const sanitizedName = sanitizeString(name, 100);
 
     const maxOrder = await prisma.album.aggregate({
       where: { userId: session.user.id, repoOwner, repoName },
@@ -129,9 +147,9 @@ export async function POST(request: NextRequest) {
 
     const album = await prisma.album.create({
       data: {
-        name,
-        repoOwner,
-        repoName,
+        name: sanitizedName,
+        repoOwner: sanitizeString(repoOwner, 100),
+        repoName: sanitizeString(repoName, 100),
         userId: session.user.id,
         order: (maxOrder._max.order ?? -1) + 1,
       },
@@ -161,8 +179,21 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { albumId, name, note, order } = body;
 
-    if (!albumId) {
-      return NextResponse.json({ error: "Missing albumId" }, { status: 400 });
+    // Validate albumId (required)
+    const albumIdError = validateCuid(albumId, "albumId");
+    if (albumIdError) {
+      return NextResponse.json({ error: albumIdError }, { status: 400 });
+    }
+
+    // Validate optional fields
+    const errors = validateAll([
+      () => name !== undefined ? validateString(name, "name", { minLength: 1, maxLength: 100 }) : null,
+      () => note !== undefined ? validateString(note, "note", { required: false, maxLength: 5000 }) : null,
+      () => order !== undefined ? validatePositiveInt(order, "order", { max: 10000 }) : null,
+    ]);
+
+    if (errors.length > 0) {
+      return NextResponse.json(createValidationError(errors), { status: 400 });
     }
 
     // Verify ownership
@@ -177,8 +208,8 @@ export async function PATCH(request: NextRequest) {
     const album = await prisma.album.update({
       where: { id: albumId },
       data: {
-        ...(name !== undefined && { name }),
-        ...(note !== undefined && { note }),
+        ...(name !== undefined && { name: sanitizeString(name, 100) }),
+        ...(note !== undefined && { note: sanitizeString(note, 5000) }),
         ...(order !== undefined && { order }),
       },
       include: { items: { orderBy: { order: "asc" } }, groups: { include: { items: true } } },

@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-
-const ACTIVE_STATUSES = new Set(["active", "trialing"]);
+import { ACTIVE_SUBSCRIPTION_STATUSES } from "@/lib/stripe";
 
 export async function getActiveSubscription(userId: string) {
   const now = new Date();
@@ -8,7 +7,7 @@ export async function getActiveSubscription(userId: string) {
   return prisma.subscription.findFirst({
     where: {
       userId,
-      status: { in: Array.from(ACTIVE_STATUSES) },
+      status: { in: [...ACTIVE_SUBSCRIPTION_STATUSES] },
       OR: [
         { currentPeriodEnd: null },
         { currentPeriodEnd: { gt: now } },

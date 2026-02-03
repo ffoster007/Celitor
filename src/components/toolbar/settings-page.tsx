@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import Toolbar from "@/components/toolbar/page";
@@ -29,10 +29,14 @@ const formatDate = (value: string | null) => {
 };
 
 const SettingsPage = () => {
-	const { status } = useSession();
+	const { data: session, status } = useSession();
 	const [loading, setLoading] = useState(true);
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [deleteLoading, setDeleteLoading] = useState(false);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
 	const [payload, setPayload] = useState<SubscriptionPayload | null>(null);
 
 	const refreshSubscription = useCallback(async () => {
@@ -85,6 +89,29 @@ const SettingsPage = () => {
 		}
 	}, [cancelLoading, refreshSubscription]);
 
+	const handleDeleteAccount = useCallback(async () => {
+		if (deleteLoading) return;
+		setDeleteLoading(true);
+		setDeleteError(null);
+		try {
+			const response = await fetch("/api/account", {
+				method: "DELETE",
+				cache: "no-store",
+			});
+			if (!response.ok) {
+				const data = await response.json().catch(() => null);
+				throw new Error(data?.error || "Failed to delete account");
+			}
+			await signOut({ callbackUrl: "/open/oauth" });
+			return true;
+		} catch (err) {
+			setDeleteError(err instanceof Error ? err.message : "Failed to delete account");
+			return false;
+		} finally {
+			setDeleteLoading(false);
+		}
+	}, [deleteLoading]);
+
 	const subscription = payload?.subscription ?? null;
 	const isActive = payload?.active ?? false;
 	const cancelAtPeriodEnd = Boolean(subscription?.cancelAtPeriodEnd);
@@ -93,6 +120,9 @@ const SettingsPage = () => {
 		if (cancelAtPeriodEnd) return "Cancel scheduled";
 		return subscription.status;
 	}, [subscription, cancelAtPeriodEnd]);
+
+	const expectedDeleteName = session?.user?.name || session?.user?.email || "DELETE";
+	const canDelete = deleteConfirmInput.trim() === expectedDeleteName;
 
 	return (
 		<div className="min-h-screen bg-black text-white">
@@ -152,7 +182,7 @@ const SettingsPage = () => {
 									<button
 										onClick={handleCancel}
 										disabled={cancelLoading || cancelAtPeriodEnd}
-										className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+										className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
 									>
 										{cancelLoading ? (
 											<Loader2 className="h-4 w-4 animate-spin" />
@@ -171,7 +201,124 @@ const SettingsPage = () => {
 						</div>
 					)}
 				</div>
+
+				<div className="mt-6 rounded-lg border border-slate-800 bg-black/70 p-6">
+					<div className="mb-4">
+						<h2 className="text-lg font-semibold">Account</h2>
+						<p className="mt-1 text-sm text-slate-400">
+							Manage your account and personal data.
+						</p>
+					</div>
+
+					{status === "authenticated" ? (
+						<div className="space-y-3">
+							<p className="text-sm text-slate-400">
+								Deleting your account permanently removes your albums, notes, and
+								subscription history.
+							</p>
+							{deleteError ? (
+								<div className="flex items-center gap-2 rounded-md border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+									<AlertTriangle className="h-4 w-4" />
+									<span>{deleteError}</span>
+								</div>
+							) : null}
+							<button
+								onClick={() => {
+									setDeleteError(null);
+									setDeleteConfirmInput("");
+									setDeleteModalOpen(true);
+								}}
+								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20"
+							>
+								<AlertTriangle className="h-4 w-4" />
+								<span>Delete Account</span>
+							</button>
+						</div>
+					) : (
+						<div className="space-y-3">
+							<div className="flex items-center gap-2 text-sm text-amber-200">
+								<AlertTriangle className="h-4 w-4" />
+								<span>Please sign in to manage your account.</span>
+							</div>
+							<Link
+								href="/open/oauth"
+								className="inline-flex items-center rounded-md border border-slate-700 px-3 py-2 text-sm text-slate-200 transition hover:border-slate-600 hover:text-white"
+							>
+								Go to sign in
+							</Link>
+						</div>
+					)}
+				</div>
 			</div>
+
+			{deleteModalOpen ? (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+					<div className="w-full max-w-md rounded-lg border border-slate-800 bg-slate-950 p-6 shadow-xl">
+						<div className="flex items-start justify-between gap-3">
+							<div>
+								<h3 className="text-lg font-semibold text-white">Delete account</h3>
+								<p className="mt-1 text-sm text-slate-400">
+									This action is permanent. Type <span className="font-semibold text-slate-200">{expectedDeleteName}</span> to confirm.
+								</p>
+							</div>
+							<button
+								onClick={() => {
+									if (deleteLoading) return;
+									setDeleteModalOpen(false);
+								}}
+								className="text-slate-400 transition hover:text-white"
+								aria-label="Close"
+							>
+								×
+							</button>
+						</div>
+
+						<div className="mt-4 space-y-3">
+							<input
+								value={deleteConfirmInput}
+								onChange={(event) => setDeleteConfirmInput(event.target.value)}
+								placeholder="Type the name to confirm"
+								className="w-full rounded-md border border-slate-700 bg-black px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-slate-500 focus:outline-none"
+							/>
+							{deleteError ? (
+								<div className="flex items-center gap-2 rounded-md border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+									<AlertTriangle className="h-4 w-4" />
+									<span>{deleteError}</span>
+								</div>
+							) : null}
+						</div>
+
+						<div className="mt-6 flex items-center justify-end gap-3">
+							<button
+								onClick={() => {
+									if (deleteLoading) return;
+									setDeleteModalOpen(false);
+								}}
+								className="rounded-md border border-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-600 hover:text-white"
+								disabled={deleteLoading}
+							>
+								Cancel
+							</button>
+							<button
+								onClick={async () => {
+									if (!canDelete || deleteLoading) return;
+									const success = await handleDeleteAccount();
+									if (success) setDeleteModalOpen(false);
+								}}
+								disabled={!canDelete || deleteLoading}
+								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+							>
+								{deleteLoading ? (
+									<Loader2 className="h-4 w-4 animate-spin" />
+								) : (
+									<AlertTriangle className="h-4 w-4" />
+								)}
+								<span>Confirm delete</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			) : null}
 		</div>
 	);
 };

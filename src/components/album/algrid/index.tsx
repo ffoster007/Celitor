@@ -34,7 +34,7 @@ export const AlbumItemCard: React.FC<AlbumItemCardProps> = ({
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, item.id)}
       className={`flex items-center justify-between gap-2 px-3 py-2 border cursor-pointer select-none ${
-        selected ? "bg-white/10 border-white/30" : "border-gray-800 hover:bg-gray-900"
+        selected ? "bg-white/10 border-white/30" : "border-white hover:bg-gray-900"
       }`}
     >
       <div className="flex items-center gap-2 min-w-0">
@@ -77,13 +77,13 @@ export const AlbumGroupCard: React.FC<AlbumGroupCardProps> = ({
 
   return (
     <div
-      className="border border-gray-700 bg-gray-900/50"
+      className="border border-white bg-gray-900/50"
       onDragOver={onDragOver}
       onDrop={(e) => onDropToGroup(e, group.id)}
     >
       <div
         data-celitor-allow-context-menu
-        className="flex items-center justify-between px-3 py-2 border-b border-gray-800 cursor-pointer"
+        className="flex items-center justify-between px-3 py-2 border-b border-white cursor-pointer"
         onClick={() => {
           setCollapsed(!collapsed);
           if (hasNote) onPreviewNote?.(group);
@@ -155,14 +155,14 @@ export const ItemContextMenu: React.FC<ItemContextMenuProps> = ({
   }, [onClose]);
 
   return (
-    <div ref={ref} className="fixed z-50 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-[140px]" style={{ left: x, top: y }}>
+    <div ref={ref} className="fixed z-50 bg-gray-800 border border-white rounded shadow-lg py-1 min-w-[140px]" style={{ left: x, top: y }}>
       <button onClick={onCopy} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 cursor-pointer">Copy</button>
       <button onClick={onCut} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 cursor-pointer">Cut</button>
-      <div className="border-t border-gray-700 my-1" />
+      <div className="border-t border-white my-1" />
       <button onClick={onEditNote} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
         <Pencil className="h-3 w-3" /> Note
       </button>
-      <div className="border-t border-gray-700 my-1" />
+      <div className="border-t border-white my-1" />
       <button onClick={onDelete} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
         <Trash2 className="h-3 w-3" /> Delete
       </button>
@@ -193,12 +193,12 @@ export const GroupContextMenu: React.FC<GroupContextMenuProps> = ({
   }, [onClose]);
 
   return (
-    <div ref={ref} className="fixed z-50 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-[140px]" style={{ left: x, top: y }}>
+    <div ref={ref} className="fixed z-50 bg-gray-800 border border-white rounded shadow-lg py-1 min-w-[140px]" style={{ left: x, top: y }}>
       <button onClick={onRename} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700">Rename</button>
       <button onClick={onEditNote} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2">
         <Pencil className="h-3 w-3" /> Note
       </button>
-      <div className="border-t border-gray-700 my-1" />
+      <div className="border-t border-white my-1" />
       <button onClick={onDelete} className="w-full px-3 py-1.5 text-left text-sm text-red-400 hover:bg-gray-700 flex items-center gap-2">
         <Trash2 className="h-3 w-3" /> Delete
       </button>
@@ -216,12 +216,12 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ value, onSave, onCancel 
   const [text, setText] = useState(value);
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-full max-w-md">
+      <div className="bg-gray-900 border border-white rounded-lg p-4 w-full max-w-md">
         <h3 className="text-sm font-medium text-gray-200 mb-3">Edit Note</h3>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="w-full h-32 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 resize-none focus:outline-none focus:border-gray-600"
+          className="w-full h-32 bg-gray-800 border border-white rounded px-3 py-2 text-sm text-gray-200 resize-none focus:outline-none focus:border-white"
           placeholder="Write your note..."
         />
         <div className="flex justify-end gap-2 mt-3">
@@ -242,14 +242,14 @@ export const CreateGroupModal: React.FC<CreateGroupModalProps> = ({ onConfirm, o
   const [name, setName] = useState("");
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-full max-w-sm">
+      <div className="bg-gray-900 border border-white rounded-lg p-4 w-full max-w-sm">
         <h3 className="text-sm font-medium text-gray-200 mb-3 flex items-center gap-2">
           <FolderPlus className="h-4 w-4" /> Create Group
         </h3>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-gray-600"
+          className="w-full bg-gray-800 border border-white rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-white"
           placeholder="Group name"
           autoFocus
         />

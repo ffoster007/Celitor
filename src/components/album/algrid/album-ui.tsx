@@ -40,7 +40,7 @@ export const AlbumList: React.FC<AlbumListProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white">
         <h2 className="text-sm font-semibold text-gray-200">Albums</h2>
         <button onClick={onCreate} className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-white text-black hover:bg-gray-200 cursor-pointer">
           <Plus className="h-3 w-3" /> New Album
@@ -182,9 +182,9 @@ const AlbumListItem: React.FC<AlbumListItemProps> = ({
   
   return (
     <div
-      className={`group flex items-center justify-between px-3 py-2 border hover:bg-gray-900 cursor-pointer ${
-        isFromSourceRepo ? 'border-blue-800/50 bg-blue-950/20' : 'border-gray-800'
-      }`}
+        className={`group flex items-center justify-between px-3 py-2 border hover:bg-gray-900 cursor-pointer ${
+          isFromSourceRepo ? 'border-blue-800/50 bg-blue-950/20' : 'border-white'
+        }`}
       onClick={() => onSelect(album)}
     >
       <div className="flex items-center gap-2 min-w-0">
@@ -214,7 +214,7 @@ const AlbumListItem: React.FC<AlbumListItemProps> = ({
           <MoreVertical className="h-4 w-4 text-gray-400" />
         </button>
         {menuOpen === album.id && (
-          <div ref={menuRef} className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-[120px] z-10">
+           <div ref={menuRef} className="absolute right-0 top-full mt-1 bg-gray-800 border border-white rounded shadow-lg py-1 min-w-[120px] z-10">
             {/* View source link for remote albums */}
             {isFromSourceRepo && album.sourceRepoOwner && album.sourceRepoName && (
               <a
@@ -274,7 +274,7 @@ export const AlbumHeader: React.FC<AlbumHeaderProps> = ({
   const isRemote = isShared || isFromSourceRepo;
   
   return (
-    <div className="border-b border-gray-800">
+    <div className="border-b border-white">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <button onClick={onBack} className="p-1 hover:bg-gray-800 rounded cursor-pointer">
@@ -331,12 +331,12 @@ export const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ onConfirm, o
   const [name, setName] = useState("");
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-full max-w-sm">
+      <div className="bg-gray-900 border border-white rounded-lg p-4 w-full max-w-sm">
         <h3 className="text-sm font-medium text-gray-200 mb-3">Create Album</h3>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-gray-600"
+          className="w-full bg-gray-800 border border-white rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-white"
           placeholder="Album name"
           autoFocus
           onKeyDown={(e) => e.key === "Enter" && name && onConfirm(name)}
@@ -360,12 +360,12 @@ export const RenameModal: React.FC<RenameModalProps> = ({ currentName, onConfirm
   const [name, setName] = useState(currentName);
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 w-full max-w-sm">
+      <div className="bg-gray-900 border border-white rounded-lg p-4 w-full max-w-sm">
         <h3 className="text-sm font-medium text-gray-200 mb-3">Rename</h3>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-gray-600"
+          className="w-full bg-gray-800 border border-white rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-white"
           autoFocus
           onKeyDown={(e) => e.key === "Enter" && name && onConfirm(name)}
         />

@@ -48,7 +48,7 @@ const ActivityBar = ({ onExplorerToggle, onAlbumToggle, explorerActive = false, 
 	};
 
 	return (
-		<aside className="flex h-full w-10 flex-col justify-between border-r border-gray-800 bg-black/95 py-2">
+		<aside className="flex h-full w-10 flex-col justify-between border-r border-white bg-black/95 py-2">
 			<div className="flex flex-col gap-1">
 				{navItems.map(({ id, icon: Icon, tooltip, showIndicator }) => {
 					const isActive = currentActive === id;

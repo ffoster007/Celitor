@@ -68,7 +68,7 @@ export const FileContextMenu: React.FC<FileContextMenuProps> = ({
     return (
         <div
             ref={menuRef}
-            className="fixed z-[9999] min-w-[180px] rounded-lg border border-gray-700 bg-gray-900 py-1 shadow-xl"
+            className="fixed z-[9999] min-w-[180px] rounded-lg border border-white bg-gray-900 py-1 shadow-xl"
             style={{
                 left: `${state.position.x}px`,
                 top: `${state.position.y}px`,

@@ -335,7 +335,7 @@ const ContentInner: React.FC<ContentInnerProps> = ({
                         data-celitor-view-hide
                         className={
                             "relative shrink-0 min-h-0 overflow-hidden " +
-                            (explorerVisible ? "border-r border-gray-800" : "border-r-0")
+                            (explorerVisible ? "border-r border-white" : "border-r-0")
                         }
                         style={{ width: explorerVisible ? panelWidth : 0 }}
                         aria-hidden={!explorerVisible}

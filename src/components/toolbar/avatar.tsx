@@ -69,7 +69,7 @@ const AvatarMenu = () => {
 			<button
 				ref={buttonRef}
 				onClick={() => setOpen((prev) => !prev)}
-				className="flex h-7 w-7 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gray-900 text-white ring-1 ring-gray-800 transition hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400/30"
+				className="flex h-7 w-7 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gray-900 text-white ring-1 ring-white transition hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 "
 				aria-label="User menu"
 			>
 				{session?.user?.image ? (
@@ -93,7 +93,7 @@ const AvatarMenu = () => {
 						className="fixed z-[60]"
 						style={{ left: anchor.left, top: anchor.top + 8, transform: "translateX(-100%)" }}
 					>
-						<div className="w-56 rounded-md border border-gray-800 bg-black p-1 shadow-lg shadow-black/40">
+						<div className="w-56 rounded-md border border-white bg-black p-1 shadow-lg shadow-black/40">
 							<div className="px-2 pb-2">
 								<div className="text-sm font-semibold text-white">
 									{session?.user?.name || "Guest"}

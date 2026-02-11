@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Zap, Book } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GitBranchLanding() {
-  const [activeSection, setActiveSection] = useState('hero');
 
   return (
     <div className="min-h-screen bg-black text-white font-mono overflow-hidden">
@@ -18,6 +17,7 @@ export default function GitBranchLanding() {
           </div>
           <div className="flex items-center gap-8">
             <Link href="/landing" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Pricing</Link>
+            <Link href="" className="hover:text-gray-300 transition-colors uppercase text-sm tracking-wide">Contract</Link>
             <Link href="/auth/pricing" className="bg-white text-black px-6 py-2 font-bold hover:bg-gray-200 transition-colors uppercase tracking-wide cursor-pointer">
               Get Started
             </Link>

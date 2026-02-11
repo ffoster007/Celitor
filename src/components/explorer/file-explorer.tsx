@@ -243,7 +243,7 @@ const FileExplorer = ({
   return (
     <div className="flex h-full min-h-0 flex-col bg-black">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-800 px-3 py-2">
+      <div className="flex items-center justify-between border-b border-white px-3 py-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
           Explorer
         </span>
@@ -252,7 +252,7 @@ const FileExplorer = ({
       {/* Repo name */}
       <button
         onClick={onChangeRepo}
-        className="group flex items-center justify-between gap-2 border-b border-gray-800 px-3 py-2 text-left hover:bg-gray-900/50 cursor-pointer"
+        className="group flex items-center justify-between gap-2 border-b border-white px-3 py-2 text-left hover:bg-gray-900/50 cursor-pointer"
       >
         <div className="flex min-w-0 items-center gap-2">
           <Folder className="h-4 w-4 shrink-0 text-yellow-500" />

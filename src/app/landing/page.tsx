@@ -35,7 +35,7 @@ export default function PricingPage() {
 					<section className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
 						<div className="border-2 border-white bg-black/70 p-8 md:p-10">
 							<div className="flex items-baseline gap-4 mb-4">
-								<span className="text-5xl font-bold">$10</span>
+								<span className="text-5xl font-bold">$2.99</span>
 								<span className="text-white/60">/ month</span>
 							</div>
 							<p className="text-white/70 mb-8">

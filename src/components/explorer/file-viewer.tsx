@@ -350,7 +350,7 @@ const FileViewer = ({
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-black">
-      <div className="flex items-center gap-2 border-b border-gray-700 px-3 py-2">
+      <div className="flex items-center gap-2 border-b border-white px-3 py-2">
         <button
           onClick={onBack}
           className="flex items-center gap-1 rounded px-2 py-1 text-sm text-gray-300 hover:bg-gray-900/50 cursor-pointer"
@@ -381,7 +381,7 @@ const FileViewer = ({
               ref={scrollRef}
               className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3"
             >
-              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-5 text-white rounded-md border border-gray-800 bg-black p-3">
+              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-5 text-white rounded-md border border-white bg-black p-3">
                 {highlighted}
               </pre>
             </div>

@@ -67,9 +67,9 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-2xl rounded-lg border border-gray-700 bg-gray-900 shadow-2xl">
+      <div className="mx-4 w-full max-w-2xl rounded-lg border border-white bg-gray-900 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-700 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-white px-4 py-3">
           <div className="flex items-center gap-2">
             <GitBranch className="h-5 w-5 text-gray-400" />
             <h2 className="text-lg font-semibold text-white">
@@ -97,7 +97,7 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
         </div>
 
         {/* Search */}
-        <div className="border-b border-gray-700 p-4">
+        <div className="border-b border-white p-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
@@ -105,7 +105,7 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
               placeholder="Search repositories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-md border border-gray-600 bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-white bg-gray-800 py-2 pl-10 pr-4 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -126,7 +126,7 @@ const RepoSelector = ({ onSelectRepo, onClose }: RepoSelectorProps) => {
               <p>No repositories found</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-800">
+            <ul className="divide-y divide-white">
               {filteredRepos.map((repo) => (
                 <li key={repo.id}>
                   <button

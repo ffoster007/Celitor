@@ -180,6 +180,34 @@ const AlbumListItem: React.FC<AlbumListItemProps> = ({
 }) => {
   const isRemote = isShared || isFromSourceRepo;
   
+  const handleExport = async (a: Album) => {
+    try {
+      const res = await fetch('/api/album/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ albumId: a.id }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        console.error('Export failed', json);
+        alert('Export failed');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const aEl = document.createElement('a');
+      aEl.href = url;
+      aEl.download = `${a.name || a.id}.zip`;
+      document.body.appendChild(aEl);
+      aEl.click();
+      aEl.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert('Export failed');
+    }
+  };
+  
   return (
     <div
         className={`group flex items-center justify-between px-3 py-2 border hover:bg-gray-900 cursor-pointer ${
@@ -241,6 +269,9 @@ const AlbumListItem: React.FC<AlbumListItemProps> = ({
             {/* Only allow rename/delete for user's own albums or synced copies */}
             {!isFromSourceRepo && (
               <>
+                <button onClick={(e) => { e.stopPropagation(); handleExport(album); setMenuOpen(null); }} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
+                  <ExternalLink className="h-3 w-3" /> Export
+                </button>
                 <button onClick={(e) => { e.stopPropagation(); onRename(album); setMenuOpen(null); }} className="w-full px-3 py-1.5 text-left text-sm text-gray-200 hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
                   <Pencil className="h-3 w-3" /> Rename
                 </button>

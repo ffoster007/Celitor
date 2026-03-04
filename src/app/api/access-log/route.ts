@@ -7,8 +7,9 @@ import { prisma } from "@/lib/prisma";
 const IP_REGEX = /^(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$|^::1$|^unknown$/;
 
 function sanitizeIp(ip: string): string {
-  const trimmed = ip.trim().substring(0, 45); // Max IPv6 length
-  return IP_REGEX.test(trimmed) ? trimmed : "unknown";
+  const trimmed = ip.trim().substring(0, 45);
+  const normalized = trimmed === "::1" ? "127.0.0.1" : trimmed;
+  return IP_REGEX.test(normalized) ? normalized : "unknown";
 }
 
 export async function POST(request: NextRequest) {

@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/pricing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pricing?checkout=cancelled`,
+      success_url: `${origin}/auth/pricing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/auth/pricing?checkout=cancelled`,
       allow_promotion_codes: true,
       metadata: { userId: user.id },
       subscription_data: {

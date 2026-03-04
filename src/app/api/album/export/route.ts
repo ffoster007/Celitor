@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     const encodedName = encodeURIComponent(`${safeName}.zip`);
     const contentDisposition = `attachment; filename="${asciiName}.zip"; filename*=UTF-8''${encodedName}`;
 
-    return new NextResponse(zipData, {
+    return new NextResponse(Buffer.from(zipData), {
       status: 200,
       headers: {
         "Content-Type": "application/zip",

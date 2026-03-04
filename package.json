@@ -21,11 +21,13 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "stripe": "^17.6.0",
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "zipdata": "^1.0.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.27",
+    "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^10.0.1",

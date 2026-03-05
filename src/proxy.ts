@@ -88,22 +88,6 @@ export async function proxy(request: NextRequest) {
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip")?.trim() ||
     "unknown";
-
-  const logUrl = new URL("/api/access-log", request.url);
-
-  try {
-    await fetch(logUrl, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        ipAddress,
-        timeStamp: new Date().toISOString(),
-      }),
-      cache: "no-store",
-    });
-  } catch {
-    // ignore log failures
-  }
   
   const isPublicRoute = PUBLIC_ROUTES.some((route) =>
     pathname === route || pathname.startsWith(`${route}/`)

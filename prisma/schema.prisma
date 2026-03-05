@@ -68,12 +68,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model AccessLog {
-  id        String   @id @default(cuid())
-  timeStamp DateTime @default(now())
-  ipAddress String
-}
-
 // Album System
 model Album {
   id              String      @id @default(cuid())

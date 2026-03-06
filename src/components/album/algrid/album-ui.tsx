@@ -40,7 +40,7 @@ export const AlbumList: React.FC<AlbumListProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
         <h2 className="text-sm font-semibold text-gray-200">Albums</h2>
         <button onClick={onCreate} className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-white text-black hover:bg-gray-200 cursor-pointer">
           <Plus className="h-3 w-3" /> New Album
@@ -211,7 +211,7 @@ const AlbumListItem: React.FC<AlbumListItemProps> = ({
   return (
     <div
         className={`group flex items-center justify-between px-3 py-2 border hover:bg-gray-900 cursor-pointer ${
-          isFromSourceRepo ? 'border-blue-800/50 bg-blue-950/20' : 'border-white'
+          isFromSourceRepo ? 'border-blue-800/50 bg-blue-950/20' : 'border-gray-700'
         }`}
       onClick={() => onSelect(album)}
     >
@@ -242,7 +242,7 @@ const AlbumListItem: React.FC<AlbumListItemProps> = ({
           <MoreVertical className="h-4 w-4 text-gray-400" />
         </button>
         {menuOpen === album.id && (
-           <div ref={menuRef} className="absolute right-0 top-full mt-1 bg-gray-800 border border-white rounded shadow-lg py-1 min-w-[120px] z-10">
+           <div ref={menuRef} className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg py-1 min-w-[120px] z-10">
             {/* View source link for remote albums */}
             {isFromSourceRepo && album.sourceRepoOwner && album.sourceRepoName && (
               <a

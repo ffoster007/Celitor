@@ -46,17 +46,17 @@ export default function GitBranchLanding() {
 
         <div className="relative z-10 max-w-5xl mx-auto text-center mb-20">
           <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
-            Understand repos fast<br />
+            Note your repos and <br />
             Organize knowledge clearly
           </h1>
           <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
             CELITOR helps you analyze project structure, trace file paths, and save bookmarks so teams can grasp large codebases at a glance.
           </p>
           <div className="flex gap-4 justify-center">
-            <button className="bg-white text-black px-8 py-3 font-bold hover:bg-gray-200 transition-all uppercase tracking-wide">
+            <button className="bg-white text-black px-8 py-3 font-bold hover:bg-gray-200 transition-all uppercase tracking-wide cursor-pointer">
               Explore the Repo
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 font-bold hover:bg-white hover:text-black transition-all uppercase tracking-wide">
+            <button className="border-2 border-white text-white px-8 py-3 font-bold hover:bg-white hover:text-black transition-all uppercase tracking-wide cursor-pointer">
               View Usage Guide
             </button>
           </div>
@@ -76,7 +76,7 @@ export default function GitBranchLanding() {
             <Zap className="w-10 h-10 mb-4" />
             <h3 className="text-xl font-bold mb-2 uppercase">Bookmark Album</h3>
             <p className="text-white/70 text-sm">
-              Save important files and code, group them into albums, and share insights instantly.
+              Save important files and code, group them into albums, and export markdown tree
             </p>
           </div>
         </div>

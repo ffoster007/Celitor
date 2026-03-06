@@ -38,7 +38,7 @@ export default function GitHubOAuth() {
             <GitBranch className="w-10 h-10" />
             <span className="text-3xl font-bold tracking-wider">CELITOR</span>
           </div>
-          <p className="text-white/70 text-sm">SECURE BRANCH MANAGEMENT PLATFORM</p>
+          <p className="text-white/70 text-sm">MANAGEMENT AND NOTE YOUR REPOSITORY</p>
         </div>
 
         {/* Main Card */}
@@ -58,7 +58,7 @@ export default function GitHubOAuth() {
             <div className="absolute inset-0 bg-gray-200 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
             <Github className="w-6 h-6 relative z-10 cursor-pointer" />
             <span className="relative z-10 cursor-pointer">
-              {isLoading ? 'AUTHENTICATING...' : 'SIGN IN WITH GITHUB'}
+              {isLoading ? 'AUTHENTICATING...' : 'AUTHENTICATE WITH GITHUB'}
             </span>
           </button>
 

@@ -228,7 +228,7 @@ const SettingsPage = () => {
 									setDeleteConfirmInput("");
 									setDeleteModalOpen(true);
 								}}
-								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20"
+								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20  cursor-pointer"
 							>
 								<AlertTriangle className="h-4 w-4" />
 								<span>Delete Account</span>
@@ -294,7 +294,7 @@ const SettingsPage = () => {
 									if (deleteLoading) return;
 									setDeleteModalOpen(false);
 								}}
-								className="rounded-md border border-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-600 hover:text-white"
+								className="rounded-md border border-slate-700 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-600 hover:text-white  cursor-pointer"
 								disabled={deleteLoading}
 							>
 								Cancel
@@ -306,7 +306,7 @@ const SettingsPage = () => {
 									if (success) setDeleteModalOpen(false);
 								}}
 								disabled={!canDelete || deleteLoading}
-								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+								className="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:border-rose-400/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
 							>
 								{deleteLoading ? (
 									<Loader2 className="h-4 w-4 animate-spin" />

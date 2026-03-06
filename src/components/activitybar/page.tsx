@@ -56,10 +56,10 @@ const ActivityBar = ({ onExplorerToggle, onAlbumToggle, explorerActive = false, 
 						<button
 							key={id}
 							onClick={() => handleClick(id)}
-							className={`group relative flex h-10 w-10 items-center justify-center rounded-md text-slate-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 cursor-pointer ${
+							className={`group relative flex h-10 w-10 items-center justify-center text-slate-400 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/30 cursor-pointer ${
 								isActive
-									? "bg-slate-900/60 text-slate-100 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.15)]"
-									: "hover:bg-slate-900/40 hover:text-slate-200"
+									? "rounded-full"
+									: "hover:bg-slate-900/40"
 							}`}
 							title={tooltip}
 						>
